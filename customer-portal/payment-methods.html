@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Methods - PharmaCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 36px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 18px; }
+        .content { padding: 40px; }
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .payment-card {
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .payment-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+        .payment-card.mpesa {
+            border-color: #10b981;
+        }
+        .payment-card.mpesa:hover {
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3);
+        }
+        .payment-card.paypal {
+            border-color: #0070ba;
+        }
+        .payment-card.paypal:hover {
+            box-shadow: 0 12px 30px rgba(0, 112, 186, 0.3);
+        }
+        .payment-card.cash {
+            border-color: #f59e0b;
+        }
+        .payment-card.cash:hover {
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.3);
+        }
+        .payment-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .mpesa .payment-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .paypal .payment-icon {
+            background: linear-gradient(135deg, #0070ba 0%, #003087 100%);
+        }
+        .cash .payment-icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .payment-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .payment-subtitle {
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list i {
+            color: #10b981;
+            font-size: 18px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        .badge.success { background: #d1f2eb; color: #0f5132; }
+        .badge.warning { background: #fff3cd; color: #856404; }
+        .badge.info { background: #cfe2ff; color: #084298; }
+        .test-mode-banner {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-mode-banner h3 {
+            color: #d97706;
+            margin-bottom: 10px;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💳 Payment Methods</h1>
+            <p>Choose your preferred payment method at checkout</p>
+        </div>
+
+        <div class="content">
+            <div class="test-mode-banner">
+                <h3>🧪 Currently in Test Mode</h3>
+                <p>All payment methods are simulated. No real money will be charged during testing.</p>
+            </div>
+
+            <div class="payment-grid">
+                <!-- M-Pesa Card -->
+                <div class="payment-card mpesa">
+                    <div class="payment-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-title">M-Pesa</div>
+                    <div class="payment-subtitle">Mobile Money Payment</div>
+                    <span class="badge success">✅ Active</span>
+                    <span class="badge info">🧪 Test Mode</span>
+                    
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Instant payment via STK Push</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Pay with your phone</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Currency: Kenyan Shillings (KES)</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Secure and fast</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- PayPal Card -->
+                <div class="payment-card paypal">
+                    <div class="payment-icon">
+                        <i class="fab fa-paypal"></i>
+                    </div>
+                    <div class="payment-title">PayPal</div>
+                    <div class="payment-subtitle">International Online Payment</div>
+                    <span class="badge success">✅ Active</span>
+                    <span class="badge info">🧪 Test Mode</span>
+                    
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Worldwide payment support</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Credit/Debit cards accepted</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Currency: US Dollars (USD)</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Buyer protection included</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cash on Delivery Card -->
+                <div class="payment-card cash">
+                    <div class="payment-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="payment-title">Cash on Delivery</div>
+                    <div class="payment-subtitle">Pay When You Receive</div>
+                    <span class="badge success">✅ Active</span>
+                    
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Pay on delivery</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>No online payment needed</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Currency: Kenyan Shillings (KES)</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Inspect before paying</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2 style="margin: 40px 0 20px 0; color: #2c3e50;">📊 Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>M-Pesa</th>
+                        <th>PayPal</th>
+                        <th>Cash on Delivery</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Payment Speed</strong></td>
+                        <td>⚡ Instant</td>
+                        <td>⚡ Instant</td>
+                        <td>🕒 On Delivery</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Currency</strong></td>
+                        <td>🇰🇪 KES</td>
+                        <td>🇺🇸 USD</td>
+                        <td>🇰🇪 KES</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Device Required</strong></td>
+                        <td>📱 Mobile Phone</td>
+                        <td>💻 Any Device</td>
+                        <td>💰 Cash</td>
+                    </tr>
+                    <tr>
+                        <td><strong>International</strong></td>
+                        <td>❌ Kenya Only</td>
+                        <td>✅ Worldwide</td>
+                        <td>❌ Local Only</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Setup Needed</strong></td>
+                        <td>✅ M-Pesa Account</td>
+                        <td>✅ PayPal Account</td>
+                        <td>❌ None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Quick local payments</td>
+                        <td>International orders</td>
+                        <td>Traditional shoppers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="actions">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart"></i> Start Shopping
+                </a>
+                <a href="PAYPAL_SETUP_GUIDE.md" class="btn btn-primary" style="background: linear-gradient(135deg, #0070ba 0%, #003087 100%);">
+                    <i class="fab fa-paypal"></i> PayPal Setup Guide
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

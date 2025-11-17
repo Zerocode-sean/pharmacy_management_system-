@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaCare Pro - Healthcare Management System</title>
+    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-wrapper">
+        <!-- Background Pattern -->
+        <div class="login-background">
+            <div class="pattern-overlay"></div>
+        </div>
+
+        <!-- Main Login Container -->
+        <div class="login-container">
+            <!-- Left Side - Branding & Information -->
+            <div class="login-brand-section">
+                <div class="brand-content">
+                    <!-- Logo & Brand -->
+                    <div class="brand-header">
+                        <div class="brand-logo">
+                            <div class="logo-circle">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="brand-text">
+                                <h1>PharmaCare Pro</h1>
+                                <span class="brand-tagline">Healthcare Management System</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Highlights -->
+                    <div class="features-showcase">
+                        <h3>Trusted by Healthcare Professionals</h3>
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>HIPAA Compliant</h4>
+                                    <p>Enterprise-grade security for patient data</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Real-time Analytics</h4>
+                                    <p>Monitor inventory and sales performance</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-users-cog"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Multi-user Access</h4>
+                                    <p>Role-based permissions for your team</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="trust-section">
+                        <div class="trust-badges">
+                            <div class="trust-badge">
+                                <i class="fas fa-certificate"></i>
+                                <span>FDA Approved</span>
+                            </div>
+                            <div class="trust-badge">
+                                <i class="fas fa-lock"></i>
+                                <span>SSL Encrypted</span>
+                            </div>
+                            <div class="trust-badge">
+                                <i class="fas fa-cloud"></i>
+                                <span>Cloud Backed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decorative Elements -->
+                <div class="decorative-elements">
+                    <div class="floating-pill pill-1">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="floating-pill pill-2">
+                        <i class="fas fa-capsules"></i>
+                    </div>
+                    <div class="floating-pill pill-3">
+                        <i class="fas fa-syringe"></i>
+                    </div>
+                    <div class="floating-pill pill-4">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Login Form -->
+            <div class="login-form-section">
+                <div class="form-container">
+                    <!-- Form Header -->
+                    <div class="form-header">
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to your healthcare dashboard</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="login-form">
+                        <!-- Error Message -->
+                        <div id="loginError" class="error-message" style="display: none;"></div>
+
+                        <!-- Username Field -->
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Username
+                            </label>
+                            <div class="input-container">
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    name="username" 
+                                    class="form-input" 
+                                    placeholder="Enter your username"
+                                    required
+                                    autocomplete="username"
+                                >
+                                <div class="input-focus-border"></div>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="input-container">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    class="form-input" 
+                                    placeholder="Enter your password"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                                <button type="button" class="password-toggle" onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                                <div class="input-focus-border"></div>
+                            </div>
+                        </div>
+
+                        <!-- Form Options -->
+                        <div class="form-options">
+                            <label class="remember-checkbox">
+                                <input type="checkbox" id="rememberMe" name="remember">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">Remember me</span>
+                            </label>
+                            <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="login-submit-btn">
+                            <span class="btn-text">Sign In</span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <i class="fas fa-arrow-right btn-arrow"></i>
+                        </button>
+                    </form>
+
+                    <!-- Demo Credentials Section -->
+                    <div class="demo-section">
+                        <div class="demo-header">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Demo Accounts</span>
+                        </div>
+                        <div class="demo-credentials">
+                            <div class="demo-account" onclick="fillCredentials('admin', 'password')">
+                                <div class="role-badge admin">Admin</div>
+                                <div class="credentials">
+                                    <span class="username">admin</span>
+                                    <span class="separator">/</span>
+                                    <span class="password">password</span>
+                                </div>
+                            </div>
+                            <div class="demo-account" onclick="fillCredentials('pharmacist1', 'password')">
+                                <div class="role-badge pharmacist">Pharmacist</div>
+                                <div class="credentials">
+                                    <span class="username">pharmacist1</span>
+                                    <span class="separator">/</span>
+                                    <span class="password">password</span>
+                                </div>
+                            </div>
+                            <div class="demo-account" onclick="fillCredentials('cashier1', 'password')">
+                                <div class="role-badge cashier">Cashier</div>
+                                <div class="credentials">
+                                    <span class="username">cashier1</span>
+                                    <span class="separator">/</span>
+                                    <span class="password">password</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="login-footer">
+                        <p>&copy; 2024 PharmaCare Pro. All rights reserved.</p>
+                        <div class="footer-links">
+                            <a href="#">Privacy Policy</a>
+                            <a href="#">Terms of Service</a>
+                            <a href="#">Support</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/main_session_fixed.js"></script>
+    <script>
+        // Password Toggle Function
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Fill Demo Credentials
+        function fillCredentials(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            
+            // Add visual feedback
+            document.getElementById('username').focus();
+            document.getElementById('password').focus();
+            document.getElementById('username').focus();
+        }
+
+        // Form Enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const submitBtn = form.querySelector('.login-submit-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoader = submitBtn.querySelector('.btn-loader');
+
+            form.addEventListener('submit', function(e) {
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+                
+                // Reset after 3 seconds if no response
+                setTimeout(() => {
+                    if (submitBtn.disabled) {
+                        submitBtn.disabled = false;
+                        btnText.style.display = 'inline';
+                        btnLoader.style.display = 'none';
+                    }
+                }, 3000);
+            });
+
+            // Input focus effects
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.parentElement.classList.remove('focused');
+                    }
+                });
+
+                // Check if input has value on load
+                if (input.value) {
+                    input.parentElement.classList.add('focused');
+                }
+            });
+        });
+        
+        // Debug: Log current URL structure
+        console.log('📍 Current URL Info:', {
+            href: window.location.href,
+            pathname: window.location.pathname,
+            origin: window.location.origin,
+            directory: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))
+        });
+        
+        // Check if user has stored redirect fix
+        const redirectFix = localStorage.getItem('redirect_fix');
+        if (redirectFix) {
+            console.log('🔧 Redirect fix found in localStorage:', JSON.parse(redirectFix));
+        }
+    </script>
+</body>
+</html>

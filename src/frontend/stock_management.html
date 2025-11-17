@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stock Management - PharmaCare Pro</title>
+  <link rel="stylesheet" href="assets/css/modern.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <main style="padding:24px;max-width:1100px;margin:24px auto;">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h1>Stock Management</h1>
+      <div>
+        <button id="btnRefresh" class="btn">Refresh</button>
+      </div>
+    </header>
+
+    <section class="card" style="padding:16px">
+      <h3>Inventory Overview</h3>
+      <div style="margin-top:12px;overflow:auto">
+        <table class="admin-table" id="stockTable">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Expiry</th><th>Status</th></tr>
+          </thead>
+          <tbody><tr><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function fetchMedicines(){
+      try{
+        const res = await fetch('../backend/api/medicines.php');
+        if(!res.ok) throw new Error('Network');
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+        renderTable(rows);
+      }catch(e){ document.querySelector('#stockTable tbody').innerHTML = '<tr><td colspan="7">Failed to load medicines: '+e.message+'</td></tr>'; }
+    }
+    function renderTable(rows){
+      if(!rows || !rows.length) { document.querySelector('#stockTable tbody').innerHTML = '<tr><td colspan="7">No medicines found</td></tr>'; return; }
+      const now = Date.now();
+      const html = rows.map(m=>{
+        const expiry = m.expiry_date || m.expiry || m.exp || '';
+        let status = 'OK';
+        const stock = Number(m.stock_quantity || m.stock || m.qty || 0);
+        const reorder = Number(m.reorder_level || m.reorder || 0);
+        if(stock <= reorder) status = 'LOW';
+        if(expiry){ const d = Date.parse(expiry); if(!isNaN(d) && d < now) status = 'EXPIRED'; }
+        return `<tr><td>${m.id||''}</td><td>${escapeHtml(m.name||m.title||'')}</td><td>${escapeHtml(m.category||m.cat||'')}</td><td>${stock}</td><td>${reorder}</td><td>${expiry}</td><td>${status}</td></tr>`;
+      }).join('');
+      document.querySelector('#stockTable tbody').innerHTML = html;
+    }
+    function escapeHtml(s){ return String(s||'').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+    document.getElementById('btnRefresh').addEventListener('click', fetchMedicines);
+    document.addEventListener('DOMContentLoaded', fetchMedicines);
+  </script>
+</body>
+</html>

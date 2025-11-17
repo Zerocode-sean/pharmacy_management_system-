@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - PharmaCare Pro</title>
+    <link rel="stylesheet" href="assets/css/customer-auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Pattern -->
+    <div class="portal-background">
+        <div class="background-pattern"></div>
+        <div class="floating-elements">
+            <div class="floating-pill"></div>
+            <div class="floating-pill"></div>
+            <div class="floating-pill"></div>
+            <div class="floating-cross"></div>
+            <div class="floating-cross"></div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="portal-container">
+        <!-- Header with Navigation -->
+        <header class="portal-header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="brand-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1>PharmaCare Pro</h1>
+                            <span>Customer Portal</span>
+                        </div>
+                    </div>
+                </div>
+                <nav class="header-nav">
+                    <a href="#" class="nav-link active" onclick="showLogin()" id="loginTab">Sign In</a>
+                    <a href="#" class="nav-link" onclick="showSignup()" id="signupTab">Sign Up</a>
+                    <a href="index.html" class="nav-link shop-link">
+                        <i class="fas fa-store"></i> Shop Medicines
+                    </a>
+                    <a href="../src/frontend/index.html" class="nav-link staff-link">
+                        <i class="fas fa-user-tie"></i> Staff Portal
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="portal-main">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-content">
+                    <h2>Welcome to Your Health Partner</h2>
+                    <p class="welcome-subtitle">Manage your prescriptions, track your health, and connect with our pharmacy services</p>
+                    
+                    <!-- Feature Highlights -->
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-prescription-bottle-alt"></i>
+                            </div>
+                            <h3>Prescription Management</h3>
+                            <p>Track your medications and refill requests</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <h3>Appointment Booking</h3>
+                            <p>Schedule consultations with our pharmacists</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h3>Health Tracking</h3>
+                            <p>Monitor your health progress and vitals</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <h3>Home Delivery</h3>
+                            <p>Get your medications delivered safely</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Authentication Section -->
+            <section class="auth-section">
+                <!-- Login Form -->
+                <div class="auth-card login-card active" id="loginCard">
+                    <div class="auth-header">
+                        <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+                        <p>Sign in to access your health dashboard</p>
+                    </div>
+
+                    <form class="auth-form" id="customerLoginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input 
+                                    type="email" 
+                                    id="loginEmail" 
+                                    name="email" 
+                                    placeholder="Enter your email address"
+                                    required
+                                    autocomplete="email"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input 
+                                    type="password" 
+                                    id="loginPassword" 
+                                    name="password" 
+                                    placeholder="Enter your password"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="remember">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-link" onclick="showForgotPasswordModal()">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="auth-btn login-btn">
+                            <span class="btn-text">Sign In</span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <i class="fas fa-arrow-right btn-arrow"></i>
+                        </button>
+                    </form>
+
+                    <div class="auth-switch">
+                        <p>Don't have an account? <a href="#" onclick="showSignup()">Create Account</a></p>
+                    </div>
+
+                </div>
+
+                <!-- Sign Up Form -->
+                <div class="auth-card signup-card" id="signupCard">
+                    <div class="auth-header">
+                        <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+                        <p>Join our community for better healthcare management</p>
+                    </div>
+
+                    <form class="auth-form" id="customerSignupForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input 
+                                        type="text" 
+                                        id="firstName" 
+                                        name="firstName" 
+                                        placeholder="First name"
+                                        required
+                                        autocomplete="given-name"
+                                    >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input 
+                                        type="text" 
+                                        id="lastName" 
+                                        name="lastName" 
+                                        placeholder="Last name"
+                                        required
+                                        autocomplete="family-name"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signupEmail">Email Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input 
+                                    type="email" 
+                                    id="signupEmail" 
+                                    name="email" 
+                                    placeholder="Enter your email address"
+                                    required
+                                    autocomplete="email"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <div class="input-group">
+                                <i class="fas fa-phone input-icon"></i>
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    name="phone" 
+                                    placeholder="Enter your phone number"
+                                    required
+                                    autocomplete="tel"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <div class="input-group">
+                                <i class="fas fa-calendar input-icon"></i>
+                                <input 
+                                    type="date" 
+                                    id="dateOfBirth" 
+                                    name="dateOfBirth" 
+                                    required
+                                    autocomplete="bday"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="signupPassword">Password</label>
+                                <div class="input-group">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input 
+                                        type="password" 
+                                        id="signupPassword" 
+                                        name="password" 
+                                        placeholder="Create password"
+                                        required
+                                        autocomplete="new-password"
+                                        minlength="8" 
+                                    >
+                                    <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <div class="input-group">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input 
+                                        type="password" 
+                                        id="confirmPassword" 
+                                        name="confirmPassword" 
+                                        placeholder="Confirm password"
+                                        required
+                                        autocomplete="new-password"
+                                        minlength="8"
+                                    >
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Requirements -->
+                        <div class="password-requirements">
+                            <div class="requirements-header">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Password Requirements</span>
+                            </div>
+                            <ul class="requirements-list">
+                                <li class="requirement" id="lengthReq">
+                                    <i class="fas fa-times"></i> At least 8 characters
+                                </li>
+                                <li class="requirement" id="upperReq">
+                                    <i class="fas fa-times"></i> One uppercase letter
+                                </li>
+                                <li class="requirement" id="lowerReq">
+                                    <i class="fas fa-times"></i> One lowercase letter
+                                </li>
+                                <li class="requirement" id="numberReq">
+                                    <i class="fas fa-times"></i> One number
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Terms and Privacy -->
+                        <div class="form-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="terms" required>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    I agree to the <a href="#" class="terms-link">Terms of Service</a> and 
+                                    <a href="#" class="terms-link">Privacy Policy</a>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="newsletter">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    Subscribe to health tips and pharmacy updates
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="auth-btn signup-btn">
+                            <span class="btn-text">Create Account</span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <i class="fas fa-user-plus btn-arrow"></i>
+                        </button>
+                    </form>
+
+                    <div class="auth-switch">
+                        <p>Already have an account? <a href="#" onclick="showLogin()">Sign In</a></p>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="portal-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> +254 700 123 456</p>
+                    <p><i class="fas fa-envelope"></i> support@pharmacare.ke</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Medicine Store</a>
+                    <a href="about.html">About Us</a>
+                    <a href="index.html#services">Our Services</a>
+                    <a href="javascript:void(0)" onclick="showComingSoon('Privacy Policy')">Privacy Policy</a>
+                    <a href="javascript:void(0)" onclick="showComingSoon('Terms of Service')">Terms of Service</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="javascript:void(0)" onclick="showComingSoon('Facebook')" class="social-link facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="javascript:void(0)" onclick="showComingSoon('Twitter')" class="social-link twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="javascript:void(0)" onclick="showComingSoon('Instagram')" class="social-link instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="javascript:void(0)" onclick="showComingSoon('LinkedIn')" class="social-link linkedin"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="javascript:void(0)" onclick="showComingSoon('WhatsApp')" class="social-link whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PharmaCare Pro. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotPasswordModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Reset Password</h3>
+                <button class="modal-close" onclick="closeForgotPasswordModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Enter your email address and we'll send you a link to reset your password.</p>
+                
+                <div id="forgotPasswordMessage"></div>
+                
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email Address</label>
+                        <div class="input-group">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input 
+                                type="email" 
+                                id="forgotEmail" 
+                                name="email" 
+                                placeholder="Enter your email address"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn primary-btn" id="forgotPasswordBtn">
+                        <span class="btn-text">Send Reset Link</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                        <i class="fas fa-paper-plane btn-arrow"></i>
+                    </button>
+                </form>
+                
+                <div class="modal-footer">
+                    <p>Remember your password? <a href="#" onclick="closeForgotPasswordModal()">Back to Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div class="message-modal" id="messageModal">
+        <div class="message-content">
+            <div class="message-icon" id="messageIcon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h3 id="messageTitle">Message</h3>
+            <p id="messageText">Message content goes here.</p>
+            <button class="message-btn" onclick="closeMessage()">Close</button>
+        </div>
+    </div>
+
+    <script src="assets/js/customer-auth.js"></script>
+</body>
+</html>

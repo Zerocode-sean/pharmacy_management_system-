@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail SMTP Setup - PharmaCare Pro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .setup-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+        
+        .setup-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-left: 4px solid #3498db;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step strong {
+            color: #2980b9;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn.secondary {
+            background: #95a5a6;
+        }
+        
+        .btn.secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn.success {
+            background: #27ae60;
+        }
+        
+        .btn.success:hover {
+            background: #229954;
+        }
+        
+        .btn.danger {
+            background: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+        
+        .result-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .status-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .status-success { color: #27ae60; }
+        .status-error { color: #e74c3c; }
+        .status-warning { color: #f39c12; }
+        .status-info { color: #3498db; }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Gmail SMTP Setup</h1>
+            <p>Configure real email sending for PharmaCare Pro</p>
+        </div>
+
+        <div class="setup-section">
+            <h3>📋 Setup Instructions</h3>
+            <div class="alert alert-info">
+                <strong>Important:</strong> You need a Gmail account with 2-Factor Authentication enabled to use Gmail SMTP.
+            </div>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Go to your <a href="https://myaccount.google.com/" target="_blank">Google Account settings</a>
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> Enable <a href="https://myaccount.google.com/security/2fa" target="_blank">2-Factor Authentication</a> if not already enabled
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Generate an App Password:
+                <ol>
+                    <li>Go to <a href="https://myaccount.google.com/apppasswords" target="_blank">App passwords</a></li>
+                    <li>Select "Mail" as the app</li>
+                    <li>Copy the 16-digit password (format: xxxx xxxx xxxx xxxx)</li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Enter your credentials below and test the configuration
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>⚙️ Gmail Configuration</h3>
+            <form id="gmailConfigForm">
+                <div class="form-group">
+                    <label>Gmail Address:</label>
+                    <input type="email" id="gmailUsername" placeholder="your-email@gmail.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>App Password (16 digits):</label>
+                    <input type="password" id="gmailAppPassword" placeholder="xxxx xxxx xxxx xxxx" required>
+                    <small>Remove spaces from the app password</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>From Name (Display Name):</label>
+                    <input type="text" id="fromName" value="PharmaCare Pro" required>
+                </div>
+                
+                <button type="submit" class="btn success">💾 Save Configuration</button>
+                <button type="button" class="btn" onclick="testEmailConfig()">📧 Test Email</button>
+                <button type="button" class="btn secondary" onclick="checkStatus()">🔍 Check Status</button>
+            </form>
+        </div>
+
+        <div class="setup-section">
+            <h3>🧪 Email Testing</h3>
+            <div class="form-group">
+                <label>Test Email Address:</label>
+                <input type="email" id="testEmail" placeholder="Enter email to send test to">
+            </div>
+            
+            <button class="btn" onclick="sendTestVerification()">📩 Test Verification Email</button>
+            <button class="btn" onclick="sendTestPasswordReset()">🔑 Test Password Reset Email</button>
+            <button class="btn secondary" onclick="viewEmailLogs()">📋 View Email Logs</button>
+        </div>
+
+        <div class="setup-section">
+            <h3>📊 System Status</h3>
+            <div class="status-card" id="statusCards">
+                <!-- Status cards will be populated here -->
+            </div>
+            <button class="btn secondary" onclick="installPHPMailer()">📥 Install PHPMailer</button>
+            <div class="result-area" id="statusResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Log results to UI
+        function logResult(elementId, result, status = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const statusIcon = status === 'success' ? '✅' : status === 'error' ? '❌' : status === 'warning' ? '⚠️' : 'ℹ️';
+            
+            const logEntry = `[${timestamp}] ${statusIcon} ${typeof result === 'object' ? JSON.stringify(result, null, 2) : result}\n\n`;
+            element.textContent = logEntry + element.textContent;
+        }
+        
+        // Save Gmail configuration
+        document.getElementById('gmailConfigForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const config = {
+                username: document.getElementById('gmailUsername').value,
+                app_password: document.getElementById('gmailAppPassword').value.replace(/\s/g, ''),
+                from_name: document.getElementById('fromName').value
+            };
+            
+            try {
+                const response = await fetch('./save-gmail-config.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                logResult('statusResult', result, result.success ? 'success' : 'error');
+                
+                if (result.success) {
+                    checkStatus();
+                }
+                
+            } catch (error) {
+                logResult('statusResult', `Configuration save error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Install PHPMailer
+        async function installPHPMailer() {
+            logResult('statusResult', 'Installing PHPMailer...', 'info');
+            
+            try {
+                const response = await fetch('./setup-gmail-smtp.php');
+                const result = await response.json();
+                logResult('statusResult', result, result.success ? 'success' : 'error');
+                
+                setTimeout(checkStatus, 1000);
+                
+            } catch (error) {
+                logResult('statusResult', `PHPMailer installation error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test email configuration
+        async function testEmailConfig() {
+            const testEmail = document.getElementById('testEmail').value || 
+                           document.getElementById('gmailUsername').value;
+            
+            if (!testEmail) {
+                logResult('statusResult', 'Please enter a test email address', 'error');
+                return;
+            }
+            
+            logResult('statusResult', `Testing email configuration with: ${testEmail}`, 'info');
+            
+            try {
+                const response = await fetch('./test-gmail-config.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test_email: testEmail })
+                });
+                
+                const result = await response.json();
+                logResult('statusResult', result, result.success ? 'success' : 'error');
+                
+            } catch (error) {
+                logResult('statusResult', `Email test error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Send test verification email
+        async function sendTestVerification() {
+            const testEmail = document.getElementById('testEmail').value;
+            
+            if (!testEmail) {
+                logResult('statusResult', 'Please enter a test email address', 'error');
+                return;
+            }
+            
+            logResult('statusResult', `Sending test verification email to: ${testEmail}`, 'info');
+            
+            try {
+                const response = await fetch('./test-verification-email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: testEmail,
+                        name: 'Test User',
+                        verification_code: '123456'
+                    })
+                });
+                
+                const result = await response.json();
+                logResult('statusResult', result, result.success ? 'success' : 'error');
+                
+            } catch (error) {
+                logResult('statusResult', `Verification email test error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Send test password reset email
+        async function sendTestPasswordReset() {
+            const testEmail = document.getElementById('testEmail').value;
+            
+            if (!testEmail) {
+                logResult('statusResult', 'Please enter a test email address', 'error');
+                return;
+            }
+            
+            logResult('statusResult', `Sending test password reset email to: ${testEmail}`, 'info');
+            
+            try {
+                const response = await fetch('./test-password-reset-email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: testEmail,
+                        name: 'Test User',
+                        reset_token: 'test-reset-token-123'
+                    })
+                });
+                
+                const result = await response.json();
+                logResult('statusResult', result, result.success ? 'success' : 'error');
+                
+            } catch (error) {
+                logResult('statusResult', `Password reset email test error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Check system status
+        async function checkStatus() {
+            try {
+                const response = await fetch('./gmail-status.php');
+                const result = await response.json();
+                
+                updateStatusCards(result);
+                logResult('statusResult', result, 'info');
+                
+            } catch (error) {
+                logResult('statusResult', `Status check error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Update status cards
+        function updateStatusCards(status) {
+            const container = document.getElementById('statusCards');
+            
+            container.innerHTML = `
+                <div class="status-item">
+                    <h4>PHPMailer</h4>
+                    <div class="status-value ${status.phpmailer_installed ? 'status-success' : 'status-error'}">
+                        ${status.phpmailer_installed ? '✅ Installed' : '❌ Missing'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <h4>Configuration</h4>
+                    <div class="status-value ${status.configured ? 'status-success' : 'status-warning'}">
+                        ${status.configured ? '✅ Ready' : '⚠️ Needs Setup'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <h4>Gmail SMTP</h4>
+                    <div class="status-value ${status.smtp_test_passed ? 'status-success' : 'status-error'}">
+                        ${status.smtp_test_passed ? '✅ Working' : '❌ Not Tested'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <h4>Emails Sent</h4>
+                    <div class="status-value status-info">
+                        📧 ${status.emails_sent || 0}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // View email logs
+        async function viewEmailLogs() {
+            try {
+                const response = await fetch('./api/gmail-email-logs.php');
+                const result = await response.json();
+                logResult('statusResult', result, 'info');
+                
+            } catch (error) {
+                logResult('statusResult', `Email logs error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('statusResult', 'Gmail SMTP Setup Interface Ready!', 'success');
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

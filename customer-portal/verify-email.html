@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - PharmaConnect</title>
+    <link rel="stylesheet" href="assets/css/customer-auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .verification-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .verification-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 32px;
+        }
+        
+        .verification-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .verification-subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .verification-form {
+            margin-bottom: 30px;
+        }
+        
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: center;
+            font-family: monospace;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .verify-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #f0fff4;
+            color: #38a169;
+            border: 2px solid #38a169;
+        }
+        
+        .status-error {
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 2px solid #e53e3e;
+        }
+        
+        .status-info {
+            background: #ebf8ff;
+            color: #3182ce;
+            border: 2px solid #3182ce;
+        }
+        
+        .resend-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .resend-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 10px;
+        }
+        
+        .resend-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #764ba2;
+        }
+        
+        .email-display {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="verification-icon">
+                <i class="fas fa-envelope-open"></i>
+            </div>
+            
+            <h1 class="verification-title">Verify Your Email</h1>
+            <p class="verification-subtitle">
+                We've sent a verification code to your email address. 
+                Please enter the code below to activate your account.
+            </p>
+            
+            <div class="email-display" id="emailDisplay">
+                <!-- Email will be displayed here -->
+            </div>
+            
+            <div id="statusMessage" class="status-message status-info" style="display: none;">
+                <!-- Status messages will appear here -->
+            </div>
+            
+            <form class="verification-form" id="verificationForm">
+                <input 
+                    type="text" 
+                    id="verificationCode" 
+                    class="code-input" 
+                    placeholder="Enter verification code"
+                    maxlength="32"
+                    required
+                >
+                
+                <button type="submit" class="verify-btn" id="verifyBtn">
+                    <i class="fas fa-check-circle"></i> Verify Email
+                </button>
+            </form>
+            
+            <div class="resend-section">
+                <p style="color: #718096; margin-bottom: 15px;">
+                    Didn't receive the code?
+                </p>
+                
+                <button type="button" class="resend-btn" id="resendBtn">
+                    <i class="fas fa-paper-plane"></i> Resend Code
+                </button>
+                
+                <a href="auth.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class EmailVerification {
+            constructor() {
+                this.email = this.getEmailFromURL();
+                this.code = this.getCodeFromURL();
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.displayEmail();
+                
+                // Auto-fill code if provided in URL
+                if (this.code) {
+                    document.getElementById('verificationCode').value = this.code;
+                    this.showMessage('Verification code pre-filled from email link.', 'info');
+                }
+            }
+            
+            initializeElements() {
+                this.form = document.getElementById('verificationForm');
+                this.codeInput = document.getElementById('verificationCode');
+                this.verifyBtn = document.getElementById('verifyBtn');
+                this.resendBtn = document.getElementById('resendBtn');
+                this.statusMessage = document.getElementById('statusMessage');
+                this.emailDisplay = document.getElementById('emailDisplay');
+            }
+            
+            setupEventListeners() {
+                this.form.addEventListener('submit', (e) => this.handleVerification(e));
+                this.resendBtn.addEventListener('click', () => this.handleResend());
+                
+                // Auto-format verification code input
+                this.codeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                });
+            }
+            
+            getEmailFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('email') || localStorage.getItem('pendingVerificationEmail') || '';
+            }
+            
+            getCodeFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('code') || '';
+            }
+            
+            displayEmail() {
+                if (this.email) {
+                    this.emailDisplay.textContent = this.email;
+                } else {
+                    this.emailDisplay.textContent = 'No email specified';
+                    this.showMessage('No email specified for verification. Please register first.', 'error');
+                }
+            }
+            
+            async handleVerification(event) {
+                event.preventDefault();
+                
+                const code = this.codeInput.value.trim();
+                
+                if (!code) {
+                    this.showMessage('Please enter the verification code.', 'error');
+                    return;
+                }
+                
+                if (!this.email) {
+                    this.showMessage('No email specified for verification.', 'error');
+                    return;
+                }
+                
+                this.setLoading(true);
+                
+                try {
+                    const response = await fetch('./api/verify-email.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: this.email,
+                            code: code
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        this.showMessage('✅ Email verified successfully! Redirecting to login...', 'success');
+                        
+                        // Clear any stored verification data
+                        localStorage.removeItem('pendingVerificationEmail');
+                        
+                        // Redirect to login after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = 'auth.html?verified=true&email=' + encodeURIComponent(this.email);
+                        }, 2000);
+                        
+                    } else {
+                        this.showMessage('❌ ' + (data.message || 'Verification failed. Please try again.'), 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    this.showMessage('❌ Network error. Please check your connection and try again.', 'error');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            async handleResend() {
+                if (!this.email) {
+                    this.showMessage('No email specified for resending.', 'error');
+                    return;
+                }
+                
+                this.setResendLoading(true);
+                
+                try {
+                    const response = await fetch('./api/resend-verification.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: this.email
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        this.showMessage('✅ Verification code resent! Please check your email.', 'success');
+                    } else {
+                        this.showMessage('❌ ' + (data.message || 'Failed to resend code. Please try again.'), 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Resend error:', error);
+                    this.showMessage('❌ Network error. Please try again.', 'error');
+                } finally {
+                    this.setResendLoading(false);
+                }
+            }
+            
+            showMessage(message, type) {
+                this.statusMessage.textContent = message;
+                this.statusMessage.className = `status-message status-${type}`;
+                this.statusMessage.style.display = 'block';
+            }
+            
+            setLoading(loading) {
+                this.verifyBtn.disabled = loading;
+                this.verifyBtn.innerHTML = loading ? 
+                    '<i class="fas fa-spinner fa-spin"></i> Verifying...' : 
+                    '<i class="fas fa-check-circle"></i> Verify Email';
+            }
+            
+            setResendLoading(loading) {
+                this.resendBtn.disabled = loading;
+                this.resendBtn.innerHTML = loading ? 
+                    '<i class="fas fa-spinner fa-spin"></i> Sending...' : 
+                    '<i class="fas fa-paper-plane"></i> Resend Code';
+            }
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new EmailVerification();
+        });
+    </script>
+</body>
+</html>

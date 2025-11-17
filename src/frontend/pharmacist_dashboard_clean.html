@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacist Dashboard - PharmaCare Pro</title>
+    <link rel="stylesheet" href="assets/css/modern.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info h1 {
+            color: #27ae60;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            color: #7f8c8d;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-large {
+            max-width: 1200px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        /* Form Styles */
+        .medicine-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Inventory Styles */
+        .inventory-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-controls select {
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .inventory-table-container {
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .inventory-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        .inventory-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-normal { background: #d4edda; color: #155724; }
+        .status-low { background: #fff3cd; color: #856404; }
+        .status-critical { background: #f8d7da; color: #721c24; }
+        .status-expiring { background: #ffeaa7; color: #d63031; }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .action-btn.view {
+            background: #27ae60;
+            color: white;
+        }
+
+        .action-btn.edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        /* Medicine Details Modal Styles */
+        .medicine-details {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row strong {
+            min-width: 150px;
+            color: #2c3e50;
+            margin-right: 15px;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .medicine-form .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-controls {
+                justify-content: stretch;
+            }
+            
+            .filter-controls select {
+                flex: 1;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-info {
+            text-align: right;
+            margin-right: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: #27ae60;
+        }
+
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .refresh-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .refresh-btn i {
+            margin-right: 8px;
+        }
+
+        .refresh-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .welcome-section h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Quick Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #27ae60;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        /* Main Modules */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 5px solid #27ae60;
+        }
+
+        .module-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            margin-right: 20px;
+        }
+
+        .module-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .module-description {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #d5dbdb;
+            transform: translateY(-2px);
+        }
+
+        .module-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .module-stat {
+            text-align: center;
+        }
+
+        .module-stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .module-stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .alerts-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .alerts-header h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-left: 10px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background: #fff5f5;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-item.warning {
+            background: #fffbf0;
+            border-left-color: #f39c12;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: #e74c3c;
+            margin-right: 15px;
+        }
+
+        .alert-item.warning .alert-icon {
+            background: #f39c12;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .module-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-info">
+                <h1><i class="fas fa-user-md"></i> Pharmacist Dashboard</h1>
+                <p>Medicine Management & Stock Control Center</p>
+            </div>
+            <div class="header-actions">
+                <button class="refresh-btn" onclick="refreshDashboard()" title="Refresh Dashboard Data">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Dr. Sarah Johnson</div>
+                    <div class="user-role">Licensed Pharmacist</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <h2>Welcome to Your Pharmacy Dashboard</h2>
+            <p>Manage medicines and monitor stock levels efficiently</p>
+        </section>
+
+        <!-- Quick Statistics -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="stat-value" id="totalMedicines">324</div>
+                <div class="stat-label">Total Medicines</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #f39c12;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value" id="lowStockCount">12</div>
+                <div class="stat-label">Low Stock Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #e74c3c;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value" id="expiringCount">7</div>
+                <div class="stat-label">Expiring Soon</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #9b59b6;">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="stat-value" id="categoriesCount">18</div>
+                <div class="stat-label">Categories</div>
+            </div>
+        </section>
+
+        <!-- Main Modules - Only 2 -->
+        <section class="modules-grid">
+            <!-- Medicine Management Module -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="module-title">Medicine Management</div>
+                </div>
+                <div class="module-description">
+                    Add new medicines, update inventory, manage medicine information, and organize by categories. Complete control over your pharmacy's medicine database.
+                </div>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="addNewMedicine()">
+                        <i class="fas fa-plus"></i> Add Medicine
+                    </button>
+                    <a href="medicines_modern.html" class="btn btn-secondary">
+                   
+                    </a>
+                </div>
+                <div class="module-stats">
+                    <div class="module-stat">
+                        <div class="module-stat-value" id="medicineCount">324</div>
+                        <div class="module-stat-label">Total Items</div>
+                    </div>
+                    <div class="module-stat">
+                        <div class="module-stat-value" id="activeCategories">18</div>
+                        <div class="module-stat-label">Categories</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Control Module -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="module-title">Stock Control</div>
+                </div>
+                <div class="module-description">
+                    Monitor stock levels, track expiry dates, set reorder alerts, and generate stock reports. Stay on top of your inventory management.
+                </div>
+                <div class="module-actions">
+                    <button class="btn btn-primary" onclick="viewStockLevels()">
+                        <i class="fas fa-chart-bar"></i> Stock Levels
+                    </button>
+                    <button class="btn btn-secondary" onclick="generateStockReport()">
+                        <i class="fas fa-file-export"></i> Generate Report
+                    </button>
+                </div>
+                <div class="module-stats">
+                    <div class="module-stat">
+                        <div class="module-stat-value" style="color: #f39c12;" id="lowStockItems">12</div>
+                        <div class="module-stat-label">Low Stock</div>
+                    </div>
+                    <div class="module-stat">
+                        <div class="module-stat-value" style="color: #e74c3c;" id="expiringItems">7</div>
+                        <div class="module-stat-label">Expiring</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts Section -->
+        <section class="alerts-section">
+            <div class="alerts-header">
+                <i class="fas fa-bell" style="color: #f39c12;"></i>
+                <h3>Priority Alerts</h3>
+            </div>
+
+            <!-- Dynamic priority alerts will be rendered here -->
+            <div id="priorityAlertsContainer">
+                <div class="alert-item">
+                    <div class="alert-icon">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    </div>
+                    <div>Loading alerts...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Medicine Modal -->
+    <div id="addMedicineModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-pills"></i> Add New Medicine</h2>
+                <span class="close" onclick="closeModal('addMedicineModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addMedicineForm" class="medicine-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medicineName">Medicine Name *</label>
+                            <input type="text" id="medicineName" name="name" required placeholder="Enter medicine name">
+                        </div>
+                        <div class="form-group">
+                            <label for="medicineGenericName">Generic Name</label>
+                            <input type="text" id="medicineGenericName" name="generic_name" placeholder="Enter generic name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medicineCategory">Category *</label>
+                            <select id="medicineCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="tablet">Tablet</option>
+                                <option value="capsule">Capsule</option>
+                                <option value="syrup">Syrup</option>
+                                <option value="injection">Injection</option>
+                                <option value="cream">Cream/Ointment</option>
+                                <option value="drops">Drops</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="medicineManufacturer">Manufacturer</label>
+                            <input type="text" id="medicineManufacturer" name="manufacturer" placeholder="Enter manufacturer">
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medicineQuantity">Initial Quantity *</label>
+                            <input type="number" id="medicineQuantity" name="quantity" required min="1" placeholder="Enter quantity">
+                        </div>
+                        <div class="form-group">
+                            <label for="medicineUnit">Unit</label>
+                            <select id="medicineUnit" name="unit">
+                                <option value="pieces">Pieces</option>
+                                <option value="bottles">Bottles</option>
+                                <option value="boxes">Boxes</option>
+                                <option value="vials">Vials</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medicinePrice">Unit Price *</label>
+                            <input type="number" id="medicinePrice" name="price" required step="0.01" min="0" placeholder="Enter price">
+                        </div>
+                        <div class="form-group">
+                            <label for="medicineReorderLevel">Reorder Level</label>
+                            <input type="number" id="medicineReorderLevel" name="reorder_level" min="1" placeholder="Minimum stock level">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medicineExpiryDate">Expiry Date</label>
+                            <input type="date" id="medicineExpiryDate" name="expiry_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="medicineBatchNumber">Batch Number</label>
+                            <input type="text" id="medicineBatchNumber" name="batch_number" placeholder="Enter batch number">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="medicineDescription">Description/Notes</label>
+                        <textarea id="medicineDescription" name="description" placeholder="Additional notes about the medicine"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addMedicineModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Add Medicine
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="inventoryModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-boxes"></i> Medicine Inventory</h2>
+                <span class="close" onclick="closeModal('inventoryModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="inventory-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inventorySearch" placeholder="Search medicines..." onkeyup="filterInventory()">
+                    </div>
+                    <div class="filter-controls">
+                        <select id="categoryFilter" onchange="filterInventory()">
+                            <option value="">All Categories</option>
+                            <option value="tablet">Tablets</option>
+                            <option value="capsule">Capsules</option>
+                            <option value="syrup">Syrups</option>
+                            <option value="injection">Injections</option>
+                        </select>
+                        <select id="stockFilter" onchange="filterInventory()">
+                            <option value="">All Stock Levels</option>
+                            <option value="low">Low Stock</option>
+                            <option value="normal">Normal Stock</option>
+                            <option value="expiring">Expiring Soon</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="refreshInventory()">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                </div>
+                
+                <div class="inventory-table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Medicine Name</th>
+                                <th>Category</th>
+                                <th>Manufacturer</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Inventory data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="inventoryLoader" class="loader" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading inventory...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pharmacist Dashboard JavaScript
+        // Toggle this to true only for local development when you want demo data
+        const USE_FALLBACK_MEDICINES = false;
+        class PharmacistDashboard {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                try {
+                    console.log('🚀 Initializing Pharmacist Dashboard...');
+                    await this.checkAuth();
+                    await this.loadDashboardData();
+                    this.setupEventListeners();
+                    this.setupAutoRefresh();
+                    console.log('✅ Pharmacist dashboard initialized successfully');
+                } catch (error) {
+                    console.error('❌ Dashboard initialization error:', error);
+                    // Only load fallback/demo data when explicitly enabled for development
+                    if (USE_FALLBACK_MEDICINES) {
+                        this.loadFallbackData();
+                    } else {
+                        console.log('🔄 Not loading fallback data - authentication may be required');
+                        // Show error in UI instead of dummy data
+                        this.showDashboardError('Failed to initialize dashboard. Please log in and try again.');
+                    }
+                }
+            }
+            
+            setupAutoRefresh() {
+                // Refresh statistics every 5 minutes
+                setInterval(() => {
+                    console.log('🔄 Auto-refreshing dashboard statistics...');
+                    this.loadDashboardData();
+                }, 5 * 60 * 1000); // 5 minutes
+            }
+            
+            async refreshDashboard() {
+                console.log('🔄 Manual dashboard refresh requested...');
+                await this.loadDashboardData();
+            }
+
+            async checkAuth() {
+                try {
+                    const response = await fetch('../backend/api/check_session.php');
+                    const data = await response.json();
+                    
+                    if (!data.authenticated || data.user.role !== 'pharmacist') {
+                        console.log('Invalid session, redirecting to login');
+                        window.location.href = 'index.html';
+                        throw new Error('Authentication required');
+                    }
+                    
+                    // Update user info
+                    document.getElementById('userName').textContent = data.user.username || 'Pharmacist';
+                } catch (error) {
+                    console.warn('Auth check failed:', error);
+                    // If auth check fails for any reason, redirect to login
+                    console.log('Auth check failed, redirecting to login');
+                    window.location.href = 'index.html';
+                    throw new Error('Authentication check failed');
+                }
+            }
+
+            async loadDashboardData() {
+                try {
+                    console.log('Loading real dashboard statistics...');
+                    
+                    // Try multiple API endpoints for better compatibility
+                    const apiPaths = [
+                        '../backend/api/medicines.php?action=stats',
+                        '../backend/api/medicines.php?action=stats',
+                        '../../src/backend/api/medicines.php?action=stats'
+                    ];
+                    
+                    let response = null;
+                    let successfulPath = null;
+                    
+                    for (const apiPath of apiPaths) {
+                        try {
+                            console.log(`Trying API path: ${apiPath}`);
+                            response = await fetch(apiPath, {
+                                credentials: 'include',
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                successfulPath = apiPath;
+                                console.log(`✅ Successful API path: ${apiPath}`);
+                                break;
+                            }
+                        } catch (pathError) {
+                            console.log(`❌ Failed path ${apiPath}:`, pathError.message);
+                            continue;
+                        }
+                    }
+                    
+                    if (response && response.ok) {
+                        const medicineData = await response.json();
+                        console.log('📊 Real statistics loaded:', medicineData);
+                        
+                        if (medicineData.success) {
+                            this.updateStatistics(medicineData);
+                            // Also load full medicines list to render priority alerts (low stock / expiring)
+                            try {
+                                const medsResp = await fetch('../backend/api/medicines.php', { credentials: 'include' });
+                                if (medsResp && medsResp.ok) {
+                                    const medsJson = await medsResp.json();
+                                    if (medsJson.success && medsJson.data) {
+                                        renderPriorityAlerts(medsJson.data);
+                                    } else {
+                                        renderPriorityAlerts([]);
+                                    }
+                                } else {
+                                    renderPriorityAlerts([]);
+                                }
+                            } catch (e) {
+                                console.warn('Failed to load medicines for alerts:', e);
+                                if (USE_FALLBACK_MEDICINES) {
+                                    renderPriorityAlerts(getDemoInventoryData());
+                                } else {
+                                    renderPriorityAlerts([]);
+                                }
+                            }
+                            console.log('✅ Dashboard updated with real data');
+                        } else {
+                            throw new Error(medicineData.message || 'API returned unsuccessful response');
+                        }
+                    } else {
+                        throw new Error('All API endpoints failed');
+                    }
+                } catch (error) {
+                    console.warn('❌ Failed to load real data:', error);
+                    // Only load fallback/demo data when explicitly enabled for development
+                    if (USE_FALLBACK_MEDICINES) {
+                        console.log('🔄 Loading fallback data for development');
+                        this.loadFallbackData();
+                    } else {
+                        console.log('🔄 Not loading fallback data - authentication may be required');
+                        // Show error in UI instead of dummy data
+                        this.showDashboardError('Failed to load dashboard data. Please log in and try again.');
+                    }
+                }
+            }
+
+            updateStatistics(data) {
+                if (data.success && data.stats) {
+                    console.log('📊 Updating dashboard with real statistics:', data.stats);
+                    
+                    // Update main statistics cards
+                    const updateElement = (id, value, fallback) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.textContent = value || fallback || '0';
+                        }
+                    };
+                    
+                    // Primary statistics
+                    updateElement('totalMedicines', data.stats.total_medicines, '0');
+                    updateElement('lowStockCount', data.stats.low_stock, '0');
+                    updateElement('expiringCount', data.stats.expiring_soon, '0');
+                    updateElement('categoriesCount', data.stats.categories, '0');
+                    
+                    // Module statistics (duplicates for different sections)
+                    updateElement('medicineCount', data.stats.total_medicines, '0');
+                    updateElement('lowStockItems', data.stats.low_stock, '0');
+                    updateElement('expiringItems', data.stats.expiring_soon, '0');
+                    updateElement('activeCategories', data.stats.categories, '0');
+                    
+                    // Additional statistics if elements exist
+                    updateElement('criticalStock', data.stats.critical_stock, '0');
+                    updateElement('totalValue', data.stats.total_value ? 'KSh ' + parseFloat(data.stats.total_value).toLocaleString() : 'KSh 0');
+                    updateElement('recentActivity', data.stats.recent_activity, '0');
+                    
+                    console.log('✅ All statistics updated successfully');
+                } else {
+                    console.warn('⚠️  Invalid statistics data format:', data);
+                }
+            }
+
+            loadFallbackData() {
+                // Fallback data when API is not available
+                console.log('🔄 Loading fallback data for development/offline mode');
+                
+                // Use reasonable demo values instead of static ones
+                const fallbackStats = {
+                    success: true,
+                    stats: {
+                        total_medicines: 25,
+                        low_stock: 3,
+                        expiring_soon: 2,
+                        categories: 8,
+                        critical_stock: 1,
+                        total_value: 12500.00,
+                        recent_activity: 5
+                    }
+                };
+                
+                this.updateStatistics(fallbackStats);
+                console.log('📊 Fallback data loaded successfully');
+            }
+
+            showDashboardError(message) {
+                // Show error message in the dashboard
+                const statsCards = document.querySelectorAll('.stat-card');
+                statsCards.forEach(card => {
+                    card.innerHTML = `
+                        <div style="text-align: center; color: #dc3545; padding: 20px;">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            <p style="margin-top: 10px;">${message}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            setupEventListeners() {
+                // Add any additional event listeners here
+            }
+        }
+
+        // Global Functions for Button Actions
+        function addNewMedicine() {
+            // Reset form to ensure it's in add mode
+            resetAddMedicineForm();
+            // Show add medicine modal
+            document.getElementById('addMedicineModal').style.display = 'block';
+        }
+
+        function viewStockLevels() {
+            // Show inventory modal
+            document.getElementById('inventoryModal').style.display = 'block';
+            loadInventoryData();
+        }
+
+        async function generateStockReport() {
+            try {
+                console.log('Generating stock report...');
+                
+                // Show loading indicator
+                const button = document.querySelector('button[onclick="generateStockReport()"]');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Report...';
+                button.disabled = true;
+                
+                // Fetch all medicines data
+                const response = await fetch('../backend/api/medicines.php');
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    throw new Error('Failed to load medicine data');
+                }
+                
+                const medicines = data.data;
+                
+                // Generate report content
+                const reportData = generateReportData(medicines);
+                
+                // Create and download the report
+                downloadStockReport(reportData, medicines);
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                alert('Stock report generated and downloaded successfully!');
+                
+            } catch (error) {
+                console.error('Error generating stock report:', error);
+                
+                // Reset button on error
+                const button = document.querySelector('button[onclick="generateStockReport()"]');
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-file-export"></i> Generate Report';
+                    button.disabled = false;
+                }
+                
+                alert('Error generating report: ' + error.message + '\n\nGenerating offline report with demo data...');
+                
+                // Fallback to demo data
+                const demoData = getDemoInventoryData();
+                const reportData = generateReportData(demoData);
+                downloadStockReport(reportData, demoData);
+            }
+        }
+        
+        function generateReportData(medicines) {
+            const currentDate = new Date().toISOString().split('T')[0];
+            const reportDate = new Date().toLocaleDateString();
+            
+            // Calculate statistics
+            const stats = {
+                totalMedicines: medicines.length,
+                totalValue: 0,
+                lowStockCount: 0,
+                expiringCount: 0,
+                criticalCount: 0,
+                categoryCounts: {},
+                manufacturerCounts: {}
+            };
+            
+            medicines.forEach(medicine => {
+                const quantity = parseInt(medicine.stock_quantity || 0);
+                const price = parseFloat(medicine.unit_price || 0);
+                const reorderLevel = parseInt(medicine.reorder_level || 10);
+                
+                // Calculate total inventory value
+                stats.totalValue += quantity * price;
+                
+                // Count stock levels
+                if (quantity <= 5) {
+                    stats.criticalCount++;
+                } else if (quantity <= reorderLevel) {
+                    stats.lowStockCount++;
+                }
+                
+                // Check expiry (within 30 days)
+                if (medicine.expiry_date) {
+                    const expiryDate = new Date(medicine.expiry_date);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 30 && daysDiff >= 0) {
+                        stats.expiringCount++;
+                    }
+                }
+                
+                // Count by category
+                const category = medicine.category || 'Unknown';
+                stats.categoryCounts[category] = (stats.categoryCounts[category] || 0) + 1;
+                
+                // Count by manufacturer
+                const manufacturer = medicine.manufacturer || 'Unknown';
+                stats.manufacturerCounts[manufacturer] = (stats.manufacturerCounts[manufacturer] || 0) + 1;
+            });
+            
+            return {
+                reportDate,
+                currentDate,
+                stats,
+                medicines
+            };
+        }
+        
+        function downloadStockReport(reportData, medicines) {
+            // Generate CSV content
+            const csvContent = generateCSVReport(reportData, medicines);
+            
+            // Generate HTML content for printing
+            const htmlContent = generateHTMLReport(reportData, medicines);
+            
+            // Download CSV file
+            downloadFile(csvContent, `pharmacy_stock_report_${reportData.currentDate}.csv`, 'text/csv');
+            
+            // Open HTML report in new window for printing
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(htmlContent);
+            reportWindow.document.close();
+            
+            // Auto-focus and show print dialog after a short delay
+            setTimeout(() => {
+                reportWindow.focus();
+                if (confirm('Would you like to print the report now?')) {
+                    reportWindow.print();
+                }
+            }, 500);
+        }
+        
+        function generateCSVReport(reportData, medicines) {
+            let csv = '';
+            
+            // Header
+            csv += `Pharmacy Stock Report\n`;
+            csv += `Generated: ${reportData.reportDate}\n`;
+            csv += `\n`;
+            
+            // Summary Statistics
+            csv += `SUMMARY STATISTICS\n`;
+            csv += `Total Medicines,${reportData.stats.totalMedicines}\n`;
+            csv += `Total Inventory Value,KSh ${reportData.stats.totalValue.toFixed(2)}\n`;
+            csv += `Critical Stock (≤5 units),${reportData.stats.criticalCount}\n`;
+            csv += `Low Stock,${reportData.stats.lowStockCount}\n`;
+            csv += `Expiring Soon (≤30 days),${reportData.stats.expiringCount}\n`;
+            csv += `\n`;
+            
+            // Detailed Inventory
+            csv += `DETAILED INVENTORY\n`;
+            csv += `ID,Name,Generic Name,Category,Manufacturer,Stock Quantity,Unit Price,Total Value,Reorder Level,Expiry Date,Status\n`;
+            
+            medicines.forEach(medicine => {
+                const quantity = parseInt(medicine.stock_quantity || 0);
+                const price = parseFloat(medicine.unit_price || 0);
+                const totalValue = quantity * price;
+                
+                // Determine status
+                let status = 'Normal';
+                if (quantity <= 5) status = 'Critical';
+                else if (quantity <= (medicine.reorder_level || 10)) status = 'Low Stock';
+                
+                // Check expiry
+                if (medicine.expiry_date) {
+                    const expiryDate = new Date(medicine.expiry_date);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 30 && daysDiff >= 0) {
+                        status = 'Expiring Soon';
+                    }
+                }
+                
+                csv += `${medicine.id || ''},`;
+                csv += `"${(medicine.name || '').replace(/"/g, '""')}",`;
+                csv += `"${(medicine.generic_name || '').replace(/"/g, '""')}",`;
+                csv += `"${(medicine.category || '').replace(/"/g, '""')}",`;
+                csv += `"${(medicine.manufacturer || '').replace(/"/g, '""')}",`;
+                csv += `${quantity},`;
+                csv += `KSh ${price.toFixed(2)},`;
+                csv += `KSh ${totalValue.toFixed(2)},`;
+                csv += `${medicine.reorder_level || 10},`;
+                csv += `${medicine.expiry_date || 'N/A'},`;
+                csv += `${status}\n`;
+            });
+            
+            return csv;
+        }
+        
+        function generateHTMLReport(reportData, medicines) {
+            return `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmacy Stock Report - ${reportData.reportDate}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #27ae60; margin: 0; }
+        .header p { margin: 5px 0; color: #666; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #27ae60; }
+        .stat-label { color: #666; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .status-normal { color: #27ae60; }
+        .status-low { color: #f39c12; }
+        .status-critical { color: #e74c3c; }
+        .status-expiring { color: #e67e22; }
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏥 Pharmacy Stock Report</h1>
+        <p>Generated on: ${reportData.reportDate}</p>
+    <p>Total Medicines: ${reportData.stats.totalMedicines} | Total Value: KSh ${reportData.stats.totalValue.toFixed(2)}</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">${reportData.stats.totalMedicines}</div>
+            <div class="stat-label">Total Medicines</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">KSh ${reportData.stats.totalValue.toFixed(2)}</div>
+            <div class="stat-label">Total Inventory Value</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #e74c3c;">${reportData.stats.criticalCount}</div>
+            <div class="stat-label">Critical Stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #f39c12;">${reportData.stats.lowStockCount}</div>
+            <div class="stat-label">Low Stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #e67e22;">${reportData.stats.expiringCount}</div>
+            <div class="stat-label">Expiring Soon</div>
+        </div>
+    </div>
+    
+    <h3>📋 Detailed Stock Inventory</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Medicine Name</th>
+                <th>Category</th>
+                <th>Manufacturer</th>
+                <th>Stock</th>
+                <th>Unit Price</th>
+                <th>Total Value</th>
+                <th>Expiry</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${medicines.map(medicine => {
+                const quantity = parseInt(medicine.stock_quantity || 0);
+                const price = parseFloat(medicine.unit_price || 0);
+                const totalValue = quantity * price;
+                
+                let status = 'Normal';
+                let statusClass = 'status-normal';
+                
+                if (quantity <= 5) {
+                    status = 'Critical';
+                    statusClass = 'status-critical';
+                } else if (quantity <= (medicine.reorder_level || 10)) {
+                    status = 'Low Stock';
+                    statusClass = 'status-low';
+                }
+                
+                if (medicine.expiry_date) {
+                    const expiryDate = new Date(medicine.expiry_date);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 30 && daysDiff >= 0) {
+                        status = 'Expiring Soon';
+                        statusClass = 'status-expiring';
+                    }
+                }
+                
+                return `
+                    <tr>
+                        <td>${medicine.id || ''}</td>
+                        <td><strong>${medicine.name || 'N/A'}</strong></td>
+                        <td>${medicine.category || 'N/A'}</td>
+                        <td>${medicine.manufacturer || 'N/A'}</td>
+                        <td>${quantity} pcs</td>
+                        <td>KSh ${price.toFixed(2)}</td>
+                        <td>KSh ${totalValue.toFixed(2)}</td>
+                        <td>${medicine.expiry_date || 'N/A'}</td>
+                        <td class="${statusClass}">${status}</td>
+                    </tr>
+                `;
+            }).join('')}
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px; text-align: center; color: #666; font-size: 12px;">
+        <p>Report generated by Pharmacy Management System on ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>
+            `;
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear local storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear session and redirect
+                fetch('../backend/api/logout.php', { method: 'POST', credentials: 'include' })
+                    .then(() => {
+                        window.location.href = 'index.html';
+                    })
+                    .catch(() => {
+                        // Force redirect even if logout fails
+                        window.location.href = 'index.html';
+                    });
+            }
+        }
+
+        // Modal Management Functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            
+            // Reset add medicine form when closing
+            if (modalId === 'addMedicineModal') {
+                resetAddMedicineForm();
+            }
+        }
+
+        // Reset Add Medicine Form to default state
+        function resetAddMedicineForm() {
+            const form = document.getElementById('addMedicineForm');
+            if (form) {
+                form.reset();
+                form.removeAttribute('data-edit-id');
+                
+                // Reset modal title and button text to add mode
+                document.querySelector('#addMedicineModal .modal-header h2').innerHTML = '<i class="fas fa-plus"></i> Add New Medicine';
+                document.querySelector('#addMedicineForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Add Medicine';
+            }
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Add Medicine Form Handling
+        function setupFormHandlers() {
+            const form = document.getElementById('addMedicineForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const rawData = Object.fromEntries(formData);
+            
+            // Map form fields to API expected fields
+            const medicineData = {
+                name: rawData.name,
+                generic_name: rawData.generic_name || rawData.name, // Use generic_name or fallback to name
+                manufacturer: rawData.manufacturer || 'Unknown',
+                category: rawData.category,
+                unit_price: parseFloat(rawData.price || 0),
+                stock_quantity: parseInt(rawData.quantity || 0),
+                reorder_level: parseInt(rawData.reorder_level || 10),
+                expiry_date: rawData.expiry_date || null,
+                description: rawData.description || '',
+                batch_number: rawData.batch_number || ''
+            };
+            
+            // Check if we're in edit mode
+            const editId = this.getAttribute('data-edit-id');
+            const isEditing = editId && editId !== 'null';
+            
+            if (isEditing) {
+                medicineData.id = editId;
+            }
+            
+            console.log('Sending medicine data:', medicineData);
+            console.log('Edit mode:', isEditing, 'ID:', editId);
+            
+            try {
+                const action = isEditing ? 'update' : 'add';
+                console.log(`� Attempting to ${action} medicine:`, medicineData);
+                
+                // Try multiple API endpoint paths for better compatibility
+                const apiPaths = [
+                    '../backend/api/medicines.php',
+                    '/Phamarcy/src/backend/api/medicines.php'
+                ];
+                
+                let response = null;
+                let successfulPath = null;
+                
+                for (const apiPath of apiPaths) {
+                    try {
+                        console.log(`🔄 Trying API path: ${apiPath}`);
+                        
+                        const fetchUrl = isEditing ? `${apiPath}?id=${editId}` : apiPath;
+                        const method = isEditing ? 'PUT' : 'POST';
+                        
+                        response = await fetch(fetchUrl, {
+                            method: method,
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify(medicineData)
+                        });
+                        
+                        if (response.ok || response.status < 500) {
+                            successfulPath = apiPath;
+                            console.log(`✅ Successful path: ${apiPath} (Status: ${response.status})`);
+                            break;
+                        }
+                    } catch (pathError) {
+                        console.log(`❌ Failed path ${apiPath}:`, pathError.message);
+                        continue;
+                    }
+                }
+                
+                if (!response) {
+                    throw new Error('All API paths failed - check server and file paths');
+                }
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', [...response.headers.entries()]);
+                console.log('📡 Successful API path:', successfulPath);
+                
+                // Get response text first to handle both JSON and error responses
+                const responseText = await response.text();
+                console.log('📋 Raw response:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                    console.log('📋 Parsed API Response:', result);
+                } catch (parseError) {
+                    console.error('❌ JSON Parse Error:', parseError.message);
+                    console.error('Raw response that failed to parse:', responseText);
+                    
+                    if (response.ok) {
+                        throw new Error(`API returned non-JSON response: ${responseText.substring(0, 200)}...`);
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${responseText.substring(0, 200)}...`);
+                    }
+                }
+                
+                if (result.success) {
+                    const successMessage = isEditing ? 'Medicine updated successfully!' : 'Medicine added successfully!';
+                    alert(successMessage);
+                    closeModal('addMedicineModal');
+                    this.reset();
+                    
+                    // Clear edit mode
+                    this.removeAttribute('data-edit-id');
+                    document.querySelector('#addMedicineModal .modal-header h2').innerHTML = '<i class="fas fa-plus"></i> Add New Medicine';
+                    
+                    // Refresh inventory data instead of full page reload
+                    loadInventoryData();
+                } else {
+                    const errorMessage = isEditing ? 'Error updating medicine: ' : 'Error adding medicine: ';
+                    alert(errorMessage + (result.message || 'Unknown error'));
+                    console.error('API Error:', result);
+                }
+            } catch (error) {
+                console.error('❌ Network error adding medicine:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    url: '../backend/api/medicines.php',
+                    data: medicineData
+                });
+                
+                // Show more detailed error message
+                alert(`Network error: ${error.message}\n\nPlease check:\n1. XAMPP is running\n2. Database is accessible\n3. API file exists\n\nMedicine saved to localStorage as fallback.`);
+                
+                // Fallback: Add to local storage for demo
+                addMedicineToLocalStorage(medicineData);
+                closeModal('addMedicineModal');
+                this.reset();
+            }
+                });
+            }
+        }
+
+        // Inventory Management Functions
+        async function loadInventoryData() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            const loader = document.getElementById('inventoryLoader');
+            
+            loader.style.display = 'block';
+            tableBody.innerHTML = '';
+            
+            try {
+                const apiPaths = [
+                    '../backend/api/medicines.php'
+                ];
+                
+                let response = null;
+                for (const apiPath of apiPaths) {
+                    try {
+                        response = await fetch(apiPath, {
+                            credentials: 'include'
+                        });
+                        if (response.ok) {
+                            console.log('Inventory loaded from:', apiPath);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log('Failed to load from:', apiPath, error.message);
+                        continue;
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    throw new Error('All inventory API endpoints failed - please log in first');
+                }
+                
+                const data = await response.json();
+                console.log('Inventory API response:', data);
+                
+                if (data.success && data.data) {
+                    displayInventoryData(data.data);
+                } else {
+                    // Check if it's an authentication error
+                    if (data.message && (data.message.includes('Authentication') || data.message.includes('login'))) {
+                        console.log('Authentication required, redirecting to login');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    throw new Error(data.message || 'API returned unsuccessful response');
+                }
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+                // Show error message instead of dummy data
+                const tableBody = document.getElementById('inventoryTableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #dc3545; padding: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Failed to load inventory data. Please ensure you are logged in and try again.
+                            <br><small>Error: ${error.message}</small>
+                        </td>
+                    </tr>
+                `;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function displayInventoryData(medicines) {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            
+            medicines.forEach(medicine => {
+                const row = createInventoryRow(medicine);
+                tableBody.appendChild(row);
+            });
+
+            // Also update priority alerts when inventory is displayed (keeps alerts in sync)
+            try {
+                renderPriorityAlerts(medicines);
+            } catch (e) {
+                console.warn('Error rendering priority alerts from inventory display:', e);
+            }
+        }
+
+        function createInventoryRow(medicine) {
+            const row = document.createElement('tr');
+            
+            // Use database field names: stock_quantity, unit_price, reorder_level
+            const quantity = medicine.stock_quantity || medicine.quantity || 0;
+            const price = medicine.unit_price || medicine.price || 0;
+            const reorderLevel = medicine.reorder_level || 10;
+            
+            // Determine status
+            let status = 'normal';
+            let statusText = 'Normal';
+            
+            if (quantity <= reorderLevel) {
+                status = quantity <= 5 ? 'critical' : 'low';
+                statusText = quantity <= 5 ? 'Critical' : 'Low Stock';
+            }
+            
+            // Check expiry (if expiry date is within 30 days)
+            if (medicine.expiry_date) {
+                const expiryDate = new Date(medicine.expiry_date);
+                const today = new Date();
+                const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff <= 30 && daysDiff >= 0) {
+                    status = 'expiring';
+                    statusText = `Expires in ${daysDiff} days`;
+                }
+            }
+            
+            row.innerHTML = `
+                <td><strong>${medicine.name}</strong></td>
+                <td>${medicine.category || 'N/A'}</td>
+                <td>${medicine.manufacturer || 'N/A'}</td>
+                <td>${quantity} pcs</td>
+                <td>KSh ${parseFloat(price).toFixed(2)}</td>
+                <td>${medicine.expiry_date || 'N/A'}</td>
+                <td><span class="status-badge status-${status}">${statusText}</span></td>
+                <td>
+                    <button class="action-btn view" onclick="viewMedicine(${medicine.id || 0})" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn edit" onclick="editMedicine(${medicine.id || 0})" title="Edit Medicine">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="deleteMedicine(${medicine.id || 0})" title="Delete Medicine">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            return row;
+        }
+
+        function filterInventory() {
+            const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const category = row.cells[1].textContent.toLowerCase();
+                const statusBadge = row.querySelector('.status-badge');
+                const status = statusBadge.className;
+                
+                let showRow = true;
+                
+                // Text search
+                if (searchTerm && !name.includes(searchTerm)) {
+                    showRow = false;
+                }
+                
+                // Category filter
+                if (categoryFilter && !category.includes(categoryFilter)) {
+                    showRow = false;
+                }
+                
+                // Stock filter
+                if (stockFilter) {
+                    if (stockFilter === 'low' && !status.includes('status-low') && !status.includes('status-critical')) {
+                        showRow = false;
+                    } else if (stockFilter === 'normal' && !status.includes('status-normal')) {
+                        showRow = false;
+                    } else if (stockFilter === 'expiring' && !status.includes('status-expiring')) {
+                        showRow = false;
+                    }
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        function refreshInventory() {
+            loadInventoryData();
+        }
+
+        // Render priority alerts: low-stock and expiring-this-week
+        function renderPriorityAlerts(medicines) {
+            const container = document.getElementById('priorityAlertsContainer');
+            if (!container) return;
+
+            if (!Array.isArray(medicines) || medicines.length === 0) {
+                container.innerHTML = '<div class="alert-item success"><div class="alert-icon"><i class="fas fa-check"></i></div><div>All systems normal — no priority alerts.</div></div>';
+                return;
+            }
+
+            const lowStockItems = [];
+            const expiringThisWeek = [];
+
+            const today = new Date();
+
+            medicines.forEach(m => {
+                const q = parseInt(m.stock_quantity || m.quantity || 0);
+                const reorder = parseInt(m.reorder_level || 10);
+
+                if (q <= reorder) {
+                    lowStockItems.push({ name: m.name || 'Unknown', qty: q, reorder });
+                }
+
+                if (m.expiry_date) {
+                    const expiry = new Date(m.expiry_date);
+                    const days = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                    if (days >= 0 && days <= 7) {
+                        expiringThisWeek.push({ name: m.name || 'Unknown', days, qty: parseInt(m.stock_quantity || 0) });
+                    }
+                }
+            });
+
+            // Build HTML
+            let html = '';
+
+            if (lowStockItems.length > 0) {
+                html += `<div class="alert-item"><div class="alert-icon"><i class="fas fa-exclamation"></i></div><div><strong>Low Stock Alerts (${lowStockItems.length})</strong><br>`;
+                html += lowStockItems.slice(0, 6).map(it => `${escapeHtml(it.name)} - Only ${it.qty} units remaining (Reorder level: ${it.reorder})`).join('<br>');
+                if (lowStockItems.length > 6) html += `<br>and ${lowStockItems.length - 6} more...`;
+                html += `</div></div>`;
+            }
+
+            if (expiringThisWeek.length > 0) {
+                html += `<div class="alert-item warning"><div class="alert-icon"><i class="fas fa-calendar-times"></i></div><div><strong>Expiring This Week (${expiringThisWeek.length})</strong><br>`;
+                html += expiringThisWeek.slice(0, 6).map(it => `${escapeHtml(it.name)} - Expires in ${it.days} day${it.days !== 1 ? 's' : ''} (${it.qty} units)`).join('<br>');
+                if (expiringThisWeek.length > 6) html += `<br>and ${expiringThisWeek.length - 6} more...`;
+                html += `</div></div>`;
+            }
+
+            if (!html) {
+                html = '<div class="alert-item success"><div class="alert-icon"><i class="fas fa-check"></i></div><div>All systems normal — no priority alerts.</div></div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Simple HTML escape to avoid injection when rendering names
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function (m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+
+        async function editMedicine(id) {
+            try {
+                // First, get the medicine details
+                const response = await fetch(`../backend/api/medicines.php?id=${id}`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data && data.data.length > 0) {
+                        const medicine = data.data[0];
+                        populateEditForm(medicine);
+                        document.getElementById('addMedicineModal').style.display = 'block';
+                    } else {
+                        alert('Medicine not found');
+                    }
+                } else {
+                    alert('Failed to load medicine details');
+                }
+            } catch (error) {
+                console.error('Error loading medicine for edit:', error);
+                alert('Error loading medicine details');
+            }
+        }
+
+        function populateEditForm(medicine) {
+            // Fill the add medicine form with existing data for editing
+            document.querySelector('[name="name"]').value = medicine.name || '';
+            document.querySelector('[name="generic_name"]').value = medicine.generic_name || '';
+            document.querySelector('[name="manufacturer"]').value = medicine.manufacturer || '';
+            document.querySelector('[name="category"]').value = medicine.category || '';
+            document.querySelector('[name="price"]').value = medicine.unit_price || '';
+            document.querySelector('[name="quantity"]').value = medicine.stock_quantity || '';
+            document.querySelector('[name="reorder_level"]').value = medicine.reorder_level || '';
+            document.querySelector('[name="expiry_date"]').value = medicine.expiry_date || '';
+            document.querySelector('[name="description"]').value = medicine.description || '';
+            document.querySelector('[name="batch_number"]').value = medicine.batch_number || '';
+            
+            // Store the ID for update
+            document.getElementById('addMedicineForm').setAttribute('data-edit-id', medicine.id);
+            
+            // Change modal title
+            document.querySelector('#addMedicineModal .modal-header h2').innerHTML = '<i class="fas fa-edit"></i> Edit Medicine';
+        }
+
+        async function deleteMedicine(id) {
+            if (confirm('Are you sure you want to delete this medicine? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`../backend/api/medicines.php?id=${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Medicine deleted successfully');
+                        loadInventoryData(); // Refresh the inventory
+                    } else {
+                        alert('Failed to delete medicine: ' + (result.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error deleting medicine:', error);
+                    alert('Network error while deleting medicine');
+                }
+            }
+        }
+
+        // Demo/Fallback Data
+        function getDemoInventoryData() {
+            return [
+                {
+                    id: 1,
+                    name: 'Paracetamol 500mg',
+                    category: 'tablet',
+                    manufacturer: 'PharmaCorp',
+                    stock_quantity: 15,
+                    unit_price: 12.50,
+                    expiry_date: '2025-06-15',
+                    reorder_level: 20
+                },
+                {
+                    id: 2,
+                    name: 'Amoxicillin 250mg',
+                    category: 'capsule',
+                    manufacturer: 'MediLabs',
+                    stock_quantity: 45,
+                    unit_price: 18.75,
+                    expiry_date: '2024-11-10',
+                    reorder_level: 25
+                },
+                {
+                    id: 3,
+                    name: 'Cough Syrup',
+                    category: 'syrup',
+                    manufacturer: 'HealthPlus',
+                    stock_quantity: 82,
+                    unit_price: 8.99,
+                    expiry_date: '2025-12-31',
+                    reorder_level: 30
+                },
+                {
+                    id: 4,
+                    name: 'Insulin Injection',
+                    category: 'injection',
+                    manufacturer: 'BioPharma',
+                    stock_quantity: 3,
+                    unit_price: 45.00,
+                    expiry_date: '2025-03-20',
+                    reorder_level: 10
+                },
+                {
+                    id: 5,
+                    name: 'Antacid Tablets',
+                    category: 'tablet',
+                    manufacturer: 'DigestWell',
+                    stock_quantity: 156,
+                    unit_price: 6.25,
+                    expiry_date: '2026-01-15',
+                    reorder_level: 50
+                }
+            ];
+        }
+
+        function addMedicineToLocalStorage(medicineData) {
+            const medicines = JSON.parse(localStorage.getItem('pharmacist_medicines') || '[]');
+            const newMedicine = {
+                id: Date.now(),
+                ...medicineData,
+                created_at: new Date().toISOString()
+            };
+            medicines.push(newMedicine);
+            localStorage.setItem('pharmacist_medicines', JSON.stringify(medicines));
+        }
+
+        // Edit Medicine Function
+        async function editMedicine(medicineId) {
+            if (!medicineId) {
+                alert('Invalid medicine ID');
+                return;
+            }
+            
+            try {
+                // Fetch medicine data
+                const response = await fetch(`../backend/api/medicines.php?id=${medicineId}`);
+                const data = await response.json();
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    throw new Error(data.message || 'Medicine not found');
+                }
+                
+                const medicine = data.data[0];
+                
+                // Populate the form with existing data
+                const setFieldValue = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.value = value || '';
+                    } else {
+                        console.warn(`Element with ID '${id}' not found`);
+                    }
+                };
+                
+                setFieldValue('medicineName', medicine.name);
+                setFieldValue('medicineGenericName', medicine.generic_name);
+                setFieldValue('medicineManufacturer', medicine.manufacturer);
+                setFieldValue('medicineCategory', medicine.category);
+                setFieldValue('medicineQuantity', medicine.stock_quantity);
+                setFieldValue('medicinePrice', medicine.unit_price);
+                setFieldValue('medicineReorderLevel', medicine.reorder_level);
+                setFieldValue('medicineExpiryDate', medicine.expiry_date);
+                setFieldValue('medicineBatchNumber', medicine.batch_number);
+                setFieldValue('medicineDescription', medicine.description);
+                
+                // Update form for edit mode
+                const form = document.getElementById('addMedicineForm');
+                form.setAttribute('data-edit-id', medicineId);
+                
+                // Update modal title
+                document.querySelector('#addMedicineModal .modal-header h2').innerHTML = '<i class="fas fa-edit"></i> Edit Medicine';
+                
+                // Update submit button text
+                document.querySelector('#addMedicineForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Update Medicine';
+                
+                // Show the modal
+                document.getElementById('addMedicineModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading medicine for edit:', error);
+                alert('Error loading medicine data: ' + error.message);
+            }
+        }
+
+        // Delete Medicine Function
+        async function deleteMedicine(medicineId) {
+            if (!medicineId) {
+                alert('Invalid medicine ID');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this medicine? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`../backend/api/medicines.php?id=${medicineId}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message || 'Medicine deleted successfully');
+                    // Refresh inventory
+                    loadInventoryData();
+                } else {
+                    // Check if this is a foreign key constraint error
+                    if (data.message && data.message.includes('referenced in') && data.message.includes('sale record')) {
+                        // Offer to discontinue instead
+                        if (confirm(data.message + '\n\nWould you like to discontinue this medicine instead? This will mark it as unavailable but keep the records.')) {
+                            await discontinueMedicine(medicineId);
+                        }
+                    } else {
+                        alert('Error deleting medicine: ' + data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting medicine:', error);
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        // Discontinue Medicine Function (alternative to delete when referenced in sales)
+        async function discontinueMedicine(medicineId) {
+            try {
+                const response = await fetch(`../backend/api/medicines.php?id=${medicineId}`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message || 'Medicine discontinued successfully');
+                    // Refresh inventory
+                    loadInventoryData();
+                } else {
+                    alert('Error discontinuing medicine: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error discontinuing medicine:', error);
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        // View Medicine Function (shows detailed information)
+        async function viewMedicine(medicineId) {
+            if (!medicineId) {
+                alert('Invalid medicine ID');
+                return;
+            }
+            
+            try {
+                // Fetch medicine data
+                const response = await fetch(`../backend/api/medicines.php?id=${medicineId}`);
+                const data = await response.json();
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    throw new Error(data.message || 'Medicine not found');
+                }
+                
+                const medicine = data.data[0];
+                
+                // Create and show medicine details modal
+                showMedicineDetailsModal(medicine);
+                
+            } catch (error) {
+                console.error('Error loading medicine details:', error);
+                alert('Error loading medicine data: ' + error.message);
+            }
+        }
+
+        // Show Medicine Details Modal
+        function showMedicineDetailsModal(medicine) {
+            const modalHtml = `
+                <div id="medicineDetailsModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-eye"></i> Medicine Details</h2>
+                            <span class="close" onclick="closeModal('medicineDetailsModal')">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="medicine-details">
+                                <div class="detail-row">
+                                    <strong>Name:</strong> ${medicine.name || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Generic Name:</strong> ${medicine.generic_name || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Manufacturer:</strong> ${medicine.manufacturer || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Category:</strong> ${medicine.category || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Stock Quantity:</strong> ${medicine.stock_quantity || 0} pcs
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Unit Price:</strong> KSh ${parseFloat(medicine.unit_price || 0).toFixed(2)}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Reorder Level:</strong> ${medicine.reorder_level || 'N/A'} pcs
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Expiry Date:</strong> ${medicine.expiry_date || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Batch Number:</strong> ${medicine.batch_number || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Description:</strong> ${medicine.description || 'No description available'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Status:</strong> ${medicine.discontinued ? 'Discontinued' : 'Active'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Created:</strong> ${medicine.created_at || 'N/A'}
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Last Updated:</strong> ${medicine.updated_at || 'N/A'}
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal('medicineDetailsModal')">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="closeModal('medicineDetailsModal'); editMedicine(${medicine.id});">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('medicineDetailsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add new modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show the modal
+            document.getElementById('medicineDetailsModal').style.display = 'block';
+        }
+
+        // Reset Add Medicine Form
+        function resetAddMedicineForm() {
+            const form = document.getElementById('addMedicineForm');
+            if (form) {
+                form.reset();
+                form.removeAttribute('data-edit-id');
+                
+                // Reset modal title and button text
+                const modalTitle = document.querySelector('#addMedicineModal .modal-header h2');
+                if (modalTitle) {
+                    modalTitle.innerHTML = '<i class="fas fa-plus"></i> Add New Medicine';
+                }
+                
+                const submitButton = document.querySelector('#addMedicineForm button[type="submit"]');
+                if (submitButton) {
+                    submitButton.innerHTML = '<i class="fas fa-save"></i> Add Medicine';
+                }
+            }
+        }
+
+        // Global refresh function accessible from HTML
+        let dashboardInstance = null;
+        
+        async function refreshDashboard() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            
+            if (refreshBtn) {
+                refreshBtn.classList.add('loading');
+                refreshBtn.disabled = true;
+            }
+            
+            try {
+                if (dashboardInstance) {
+                    await dashboardInstance.refreshDashboard();
+                } else {
+                    console.warn('Dashboard instance not available');
+                }
+            } catch (error) {
+                console.error('Refresh error:', error);
+                alert('Failed to refresh dashboard data. Please try again.');
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    refreshBtn.disabled = false;
+                }
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            dashboardInstance = new PharmacistDashboard();
+            setupFormHandlers();
+        });
+    </script>
+</body>
+</html>

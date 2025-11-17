@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales/POS - Pharmacy Management System</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/pos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-pills"></i>
+                <h1>Pharmacy Management System - POS</h1>
+            </div>
+            <div class="user-info">
+                <span id="userWelcome">Welcome, User</span>
+                <button class="btn logout-btn" onclick="Auth.logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <nav class="navbar">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="medicines.html"><i class="fas fa-pills"></i> Medicines</a></li>
+                <li><a href="sales.html" class="active"><i class="fas fa-cash-register"></i> Sales</a></li>
+                <li><a href="customers.html"><i class="fas fa-users"></i> Customers</a></li>
+                <li><a href="suppliers.html"><i class="fas fa-truck"></i> Suppliers</a></li>
+                <li><a href="customers.html"><i class="fas fa-users"></i> Customers</a></li>
+                <li><a href="suppliers.html"><i class="fas fa-truck"></i> Suppliers</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="users.html"><i class="fas fa-user-cog"></i> Users</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="pos-container">
+                <!-- Left Side - Product Selection -->
+                <div class="pos-left">
+                    <div class="search-section">
+                        <h3><i class="fas fa-search"></i> Product Search</h3>
+                        <div class="search-box">
+                            <input type="text" id="productSearch" placeholder="Search by name, barcode, or generic name..." class="search-input">
+                            <button class="btn btn-primary" onclick="searchProducts()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button class="btn" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-grid" id="productGrid">
+                        <!-- Products will be loaded here -->
+                        <div class="loading-message">
+                            <i class="fas fa-spinner fa-spin"></i> Loading products...
+                        </div>
+                    </div>
+
+                    <!-- Quick Categories -->
+                    <div class="category-filter">
+                        <h4>Quick Categories</h4>
+                        <div class="category-buttons">
+                            <button class="btn category-btn active" onclick="filterByCategory('')">All</button>
+                            <button class="btn category-btn" onclick="filterByCategory('Antibiotics')">Antibiotics</button>
+                            <button class="btn category-btn" onclick="filterByCategory('Pain Relief')">Pain Relief</button>
+                            <button class="btn category-btn" onclick="filterByCategory('Vitamins')">Vitamins</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Cart and Checkout -->
+                <div class="pos-right">
+                    <!-- Customer Selection -->
+                    <div class="customer-section">
+                        <h3><i class="fas fa-user"></i> Customer</h3>
+                        <div class="customer-select">
+                            <select id="customerSelect" class="form-select">
+                                <option value="">Walk-in Customer</option>
+                            </select>
+                            <button class="btn btn-sm" onclick="showNewCustomerForm()">
+                                <i class="fas fa-plus"></i> New
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Shopping Cart -->
+                    <div class="cart-section">
+                        <h3><i class="fas fa-shopping-cart"></i> Cart Items</h3>
+                        <div class="cart-items" id="cartItems">
+                            <div class="empty-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Cart is empty</p>
+                                <small>Search and add products to start a sale</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Discount:</span>
+                            <div class="discount-input">
+                                <input type="number" id="discountAmount" value="0" min="0" step="0.01" onchange="calculateTotal()">
+                                <select id="discountType" onchange="calculateTotal()">
+                                    <option value="amount">$</option>
+                                    <option value="percentage">%</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (0%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span><strong>Total:</strong></span>
+                            <span id="total"><strong>$0.00</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="payment-section">
+                        <h3><i class="fas fa-credit-card"></i> Payment</h3>
+                        <div class="payment-methods">
+                            <button class="btn payment-btn active" data-method="cash">
+                                <i class="fas fa-money-bill"></i> Cash
+                            </button>
+                            <button class="btn payment-btn" data-method="card">
+                                <i class="fas fa-credit-card"></i> Card
+                            </button>
+                            <button class="btn payment-btn" data-method="digital">
+                                <i class="fas fa-mobile-alt"></i> Digital
+                            </button>
+                        </div>
+
+                        <div class="cash-payment" id="cashPayment">
+                            <div class="form-group">
+                                <label for="amountReceived">Amount Received:</label>
+                                <input type="number" id="amountReceived" step="0.01" min="0" onchange="calculateChange()">
+                            </div>
+                            <div class="change-display">
+                                <span>Change: </span>
+                                <span id="changeAmount">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pos-actions">
+                        <button class="btn btn-danger" onclick="clearCart()">
+                            <i class="fas fa-trash"></i> Clear Cart
+                        </button>
+                        <button class="btn btn-warning" onclick="holdSale()">
+                            <i class="fas fa-pause"></i> Hold Sale
+                        </button>
+                        <button class="btn btn-success btn-large" onclick="completeSale()" id="completeSaleBtn" disabled>
+                            <i class="fas fa-check"></i> Complete Sale
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content receipt-modal">
+            <div class="receipt-header">
+                <h2><i class="fas fa-receipt"></i> Sale Receipt</h2>
+                <button class="close-modal" onclick="closeReceiptModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="receipt-content" id="receiptContent">
+                <!-- Receipt will be generated here -->
+            </div>
+            <div class="receipt-actions">
+                <button class="btn btn-primary" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn" onclick="emailReceipt()">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+                <button class="btn btn-success" onclick="newSale()">
+                    <i class="fas fa-plus"></i> New Sale
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/pos.js"></script>
+</body>
+</html>

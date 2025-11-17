@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaCare - Online Medicine Store</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-pills"></i>
+                <h1>PharmaCare</h1>
+            </div>
+            <div class="header-actions">
+                <!-- Customer Authentication Section -->
+                <div class="customer-auth" id="customerAuthSection">
+                    <!-- Logged Out State -->
+                    <div class="auth-buttons" id="authButtons">
+                        <a href="auth.html" class="auth-link login-link">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Sign In</span>
+                        </a>
+                        <a href="auth.html" class="auth-link signup-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Sign Up</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Logged In State -->
+                    <div class="customer-profile" id="customerProfile" style="display: none;">
+                        <div class="profile-info">
+                            <div class="profile-avatar" id="customerAvatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-details">
+                                <span class="customer-name" id="customerName">Customer</span>
+                                <span class="customer-email" id="customerEmail">customer@example.com</span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="dropdown-toggle" onclick="toggleProfileDropdown()">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <button class="logout-btn" onclick="customerLogout()" title="Sign Out">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
+                            <div class="dropdown-menu" id="profileDropdown">
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-history"></i>
+                                    <span>Order History</span>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-heart"></i>
+                                    <span>Wishlist</span>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item logout-item" onclick="customerLogout(event); return false;">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Sign Out</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="cart-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Search Section -->
+            <section class="search-section">
+                <h2>Find Your Medicines</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search for medicines..." onkeyup="searchMedicines()">
+                    <button class="search-btn" onclick="searchMedicines()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Medicines Grid -->
+            <section class="medicines-section">
+                <div class="section-header">
+                    <h3>Available Medicines</h3>
+                    <div class="filters">
+                        <select id="categoryFilter" onchange="filterMedicines()">
+                            <option value="">All Categories</option>
+                            <option value="tablet">Tablets</option>
+                            <option value="capsule">Capsules</option>
+                            <option value="syrup">Syrups</option>
+                            <option value="injection">Injections</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="error-message" id="errorMessage" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p></p>
+                </div>
+
+                <div class="medicines-grid" id="medicinesGrid">
+                    <!-- Medicines will be loaded here -->
+                </div>
+
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading medicines...</p>
+                </div>
+
+                <div class="no-results" id="noResults" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>No medicines found matching your criteria</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Shopping Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be displayed here -->
+        </div>
+
+        <div class="cart-empty" id="cartEmpty">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Your cart is empty</p>
+            <small>Add medicines to get started</small>
+        </div>
+
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div class="cart-total">
+                <strong>Total: <span id="cartTotal">KES 0.00</span></strong>
+            </div>
+            <button class="checkout-btn" onclick="proceedToCheckout()">
+                <i class="fas fa-credit-card"></i>
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Complete Your Order</h3>
+                <button class="close-modal" onclick="closeCheckout()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="checkout-form" id="checkoutForm" onsubmit="return handleUnifiedPayment(event)">
+                <div class="form-section">
+                    <h4>Contact Information</h4>
+                    <div class="form-group">
+                        <label for="customerName">Full Name *</label>
+                        <input type="text" id="customerName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">Email Address *</label>
+                        <input type="email" id="customerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone Number *</label>
+                        <input type="tel" id="customerPhone" name="phone" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Delivery Address</h4>
+                    <div class="form-group">
+                        <label for="customerAddress">Street Address *</label>
+                        <textarea id="customerAddress" name="address" rows="3" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerCity">City *</label>
+                            <input type="text" id="customerCity" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerZip">ZIP Code *</label>
+                            <input type="text" id="customerZip" name="zip" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Order Summary</h4>
+                    <div class="order-summary" id="orderSummary">
+                        <!-- Order items will be displayed here -->
+                    </div>
+                    <div class="order-total">
+                        <strong>Total Amount: <span id="orderTotal">KES 0.00</span></strong>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Payment Method</h4>
+                    <div class="payment-methods">
+                        <div class="payment-option">
+                            <input type="radio" id="paymentMpesa" name="paymentMethod" value="mpesa" checked onchange="updatePaymentButton('mpesa')">
+                            <label for="paymentMpesa" class="payment-label">
+                                <div class="payment-icon mpesa-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>M-Pesa</strong>
+                                    <small>Pay via M-Pesa mobile money (KES)</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="paymentPaypal" name="paymentMethod" value="paypal" onchange="updatePaymentButton('paypal')">
+                            <label for="paymentPaypal" class="payment-label">
+                                <div class="payment-icon paypal-icon">
+                                    <i class="fab fa-paypal"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>PayPal</strong>
+                                    <small>Pay securely with PayPal (USD)</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="paymentCash" name="paymentMethod" value="cash" onchange="updatePaymentButton('cash')">
+                            <label for="paymentCash" class="payment-label">
+                                <div class="payment-icon cash-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>Cash on Delivery</strong>
+                                    <small>Pay when you receive your order</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCheckout()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitPaymentBtn">
+                        <i class="fas fa-credit-card"></i>
+                        <span id="paymentBtnText">Pay with M-Pesa</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Order Placed Successfully!</h3>
+            <p>Your order has been received and will be processed shortly.</p>
+            <div class="order-details" id="successOrderDetails">
+                <!-- Order details will be shown here -->
+            </div>
+            <button class="btn btn-primary" onclick="closeSuccess()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/unified-payment.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/checkout-fix.js"></script>
+    
+    <!-- Payment Button Update Function - Inline for guaranteed availability -->
+    <script>
+        // Update payment button based on selected method
+        function updatePaymentButton(method) {
+            console.log('💳 Payment method changed to:', method);
+            
+            const paymentBtnText = document.getElementById('paymentBtnText');
+            const submitBtn = document.getElementById('submitPaymentBtn');
+            
+            if (!paymentBtnText || !submitBtn) {
+                console.error('❌ Button elements not found!');
+                return;
+            }
+            
+            const btnIcon = submitBtn.querySelector('i');
+            if (!btnIcon) {
+                console.error('❌ Button icon not found!');
+                return;
+            }
+            
+            // Update based on method
+            switch(method) {
+                case 'mpesa':
+                    paymentBtnText.textContent = 'Pay with M-Pesa';
+                    btnIcon.className = 'fas fa-mobile-alt';
+                    submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    console.log('✅ Updated to M-Pesa');
+                    break;
+                    
+                case 'paypal':
+                    paymentBtnText.textContent = 'Pay with PayPal';
+                    btnIcon.className = 'fab fa-paypal';
+                    submitBtn.style.background = 'linear-gradient(135deg, #0070ba 0%, #003087 100%)';
+                    console.log('✅ Updated to PayPal');
+                    break;
+                    
+                case 'cash':
+                    paymentBtnText.textContent = 'Place Order (Cash on Delivery)';
+                    btnIcon.className = 'fas fa-money-bill-wave';
+                    submitBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+                    console.log('✅ Updated to Cash on Delivery');
+                    break;
+                    
+                default:
+                    console.error('❌ Unknown payment method:', method);
+            }
+        }
+        
+        // Make it globally available
+        window.updatePaymentButton = updatePaymentButton;
+    </script>
+    
+    <!-- Direct Checkout Handler -->
+    <script>
+        // Direct checkout function that bypasses form submission issues
+        function handleCheckoutDirect() {
+            // Immediate visual feedback
+            alert('🚀 BUTTON CLICKED! handleCheckoutDirect called');
+            console.log('🚀 DIRECT CHECKOUT: Button clicked!');
+            
+            // Change page background to confirm function is running
+            document.body.style.backgroundColor = '#ffeb3b';
+            setTimeout(() => { document.body.style.backgroundColor = ''; }, 2000);
+            
+            // Ensure cart has test items if empty
+            if (!cart || !cart.items || cart.items.length === 0) {
+                console.log('🛒 Cart is empty, adding test item...');
+                if (cart && typeof cart.addItem === 'function') {
+                    cart.addItem({
+                        id: 999,
+                        name: 'Test Medicine',
+                        unit_price: 100,
+                        stock_quantity: 10
+                    });
+                    console.log('✅ Test item added to cart');
+                } else {
+                    console.error('❌ Cart addItem function not available');
+                }
+            }
+            
+            if (typeof handleCheckout !== 'function') {
+                console.error('❌ handleCheckout function not available!');
+                alert('Payment system not ready. Please refresh the page and try again.');
+                return;
+            }
+            
+            console.log('✅ handleCheckout function is available');
+
+            // Check cart with detailed logging
+            console.log('🛒 Checking cart...');
+            console.log('Cart exists:', !!cart);
+            console.log('Cart type:', typeof cart);
+            console.log('Cart items:', cart ? cart.items : 'NO CART');
+            console.log('Items length:', cart && cart.items ? cart.items.length : 'NO ITEMS');
+
+            if (!cart || !cart.items || cart.items.length === 0) {
+                alert('Your cart is empty. Please add some items first.');
+                console.error('❌ Cart validation failed in handleCheckoutDirect');
+                return;
+            }
+
+            console.log('✅ Cart validation passed in handleCheckoutDirect');
+
+            const form = document.getElementById('checkoutForm');
+            console.log('🔍 Form search result:', form);
+            if (!form) {
+                alert('Checkout form not found. Please refresh the page.');
+                console.error('❌ Form not found in handleCheckoutDirect');
+                return;
+            }
+
+            console.log('✅ Form found in handleCheckoutDirect');
+
+            // Fill form with data if empty
+            const nameField = form.querySelector('input[name="name"]');
+            const phoneField = form.querySelector('input[name="phone"]');
+            const addressField = form.querySelector('textarea[name="address"]');
+            
+            if (nameField && !nameField.value) nameField.value = 'Test Customer';
+            if (phoneField && !phoneField.value) phoneField.value = '254712345678';
+            if (addressField && !addressField.value) addressField.value = 'Test Address, Nairobi';
+            
+            console.log('📝 Form fields filled with test data');
+
+            // Create a more complete synthetic form submission event
+            const syntheticEvent = {
+                preventDefault: function() { 
+                    console.log('✅ preventDefault called in synthetic event'); 
+                },
+                target: form,
+                type: 'submit',
+                bubbles: true,
+                cancelable: true,
+                submitter: form.querySelector('button.btn-primary')
+            };
+
+            console.log('🚀 DIRECT CHECKOUT: About to call handleCheckout...');
+            console.log('📋 Synthetic event:', syntheticEvent);
+            
+            try {
+                handleCheckout(syntheticEvent);
+                console.log('✅ handleCheckout call completed');
+            } catch (error) {
+                console.error('❌ Error calling handleCheckout:', error);
+                alert('Error calling payment function: ' + error.message);
+            }
+        }
+        
+        // Backup: Also try to attach the normal event listener
+        setTimeout(function() {
+            console.log('🔍 BACKUP: Checking checkout form...');
+            
+            const form = document.getElementById('checkoutForm');
+            if (form) {
+                console.log('✅ BACKUP: Checkout form found');
+                
+                // Remove existing handlers and add new one
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+                
+                newForm.addEventListener('submit', function(e) {
+                    console.log('� BACKUP: Form submitted via addEventListener!');
+                    e.preventDefault();
+                    handleCheckout(e);
+                    return false;
+                });
+                
+                console.log('✅ BACKUP: Event listener attached');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

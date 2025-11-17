@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Log Viewer - PharmaConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .refresh-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .email-count {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .email-list {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .email-item {
+            border-bottom: 1px solid #e9ecef;
+            padding: 20px;
+            transition: background 0.2s;
+        }
+        
+        .email-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .email-to {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+        
+        .email-timestamp {
+            color: #6c757d;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .email-subject {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .email-preview {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .email-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+        
+        .view-btn {
+            color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .view-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .email-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90%;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .modal-body {
+            padding: 0;
+            max-height: 70vh;
+            overflow: auto;
+        }
+        
+        .email-content {
+            padding: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-envelope-open"></i> Email Log Viewer</h1>
+            <p>View verification emails sent by the system (Development Mode)</p>
+        </div>
+        
+        <div class="controls">
+            <div class="email-count">
+                <span id="emailCount">0</span> emails found
+            </div>
+            <button class="refresh-btn" onclick="loadEmails()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+        
+        <div class="email-list" id="emailList">
+            <div class="empty-state">
+                <i class="fas fa-envelope"></i>
+                <h3>Loading emails...</h3>
+                <p>Please wait while we load the email log.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Email Modal -->
+    <div class="email-modal" id="emailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Email Preview</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="email-content" id="modalEmailContent">
+                    <!-- Email content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let emails = [];
+        
+        async function loadEmails() {
+            try {
+                const response = await fetch('./api/email-logs.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    emails = data.emails || [];
+                    displayEmails();
+                    updateEmailCount();
+                } else {
+                    showError('Failed to load emails: ' + data.message);
+                }
+                
+            } catch (error) {
+                console.error('Error loading emails:', error);
+                showError('Network error loading emails');
+            }
+        }
+        
+        function displayEmails() {
+            const emailList = document.getElementById('emailList');
+            
+            if (emails.length === 0) {
+                emailList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No emails found</h3>
+                        <p>No verification emails have been sent yet. Try registering a new customer account.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort emails by timestamp (newest first)
+            emails.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            emailList.innerHTML = emails.map((email, index) => `
+                <div class="email-item">
+                    <div class="email-header">
+                        <div class="email-to">
+                            <i class="fas fa-envelope"></i> ${email.to}
+                        </div>
+                        <div class="email-timestamp">
+                            ${formatTimestamp(email.timestamp)}
+                        </div>
+                    </div>
+                    
+                    <div class="email-subject">
+                        ${email.subject}
+                    </div>
+                    
+                    <div class="email-preview">
+                        ${getEmailPreview(email.html_body || email.text_body)}
+                    </div>
+                    
+                    <div class="email-actions">
+                        <button class="action-btn view-btn" onclick="viewEmail(${index})">
+                            <i class="fas fa-eye"></i> View Full Email
+                        </button>
+                        <button class="action-btn" onclick="copyVerificationLink(${index})">
+                            <i class="fas fa-link"></i> Copy Verification Link
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getEmailPreview(content) {
+            // Extract text content from HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            const text = tempDiv.textContent || tempDiv.innerText || '';
+            
+            // Return first 150 characters
+            return text.substring(0, 150) + (text.length > 150 ? '...' : '');
+        }
+        
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        function updateEmailCount() {
+            document.getElementById('emailCount').textContent = emails.length;
+        }
+        
+        function viewEmail(index) {
+            const email = emails[index];
+            const modalContent = document.getElementById('modalEmailContent');
+            
+            modalContent.innerHTML = email.html_body || `<pre>${email.text_body}</pre>`;
+            
+            document.getElementById('emailModal').style.display = 'block';
+        }
+        
+        function copyVerificationLink(index) {
+            const email = emails[index];
+            
+            // Extract verification link from email content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = email.html_body;
+            const links = tempDiv.getElementsByTagName('a');
+            
+            let verificationLink = '';
+            for (let link of links) {
+                if (link.href && link.href.includes('verify-email')) {
+                    verificationLink = link.href;
+                    break;
+                }
+            }
+            
+            if (verificationLink) {
+                navigator.clipboard.writeText(verificationLink).then(() => {
+                    alert('Verification link copied to clipboard!');
+                }).catch(() => {
+                    prompt('Copy this verification link:', verificationLink);
+                });
+            } else {
+                alert('No verification link found in this email.');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('emailModal').style.display = 'none';
+        }
+        
+        function showError(message) {
+            document.getElementById('emailList').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('emailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // Load emails on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmails();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadEmails, 30000);
+        });
+    </script>
+</body>
+</html>

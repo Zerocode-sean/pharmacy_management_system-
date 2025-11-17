@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Setup Wizard - PharmaCare Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .wizard-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .wizard-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .wizard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .wizard-content {
+            padding: 40px;
+        }
+        
+        .step {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .step-number {
+            background: #e5e7eb;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #374151;
+        }
+        
+        .step-number.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .step-description {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        .btn.secondary {
+            background: #6b7280;
+        }
+        
+        .btn.secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #2563eb;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        
+        .instruction-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .instruction-box ol {
+            margin-left: 20px;
+        }
+        
+        .instruction-box li {
+            margin: 10px 0;
+        }
+        
+        .test-result {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>📧 Gmail Setup Wizard</h1>
+            <p>Set up real email sending for PharmaCare Pro in 4 easy steps</p>
+        </div>
+        
+        <div class="wizard-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+            </div>
+            
+            <!-- Step 1: Introduction -->
+            <div class="step active" id="step1">
+                <div class="step-header">
+                    <div class="step-number active">1</div>
+                    <h2 class="step-title">Welcome to Gmail Setup</h2>
+                    <p class="step-description">Let's configure real email sending for your pharmacy system</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>What you'll need:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>A Gmail account</li>
+                        <li>2-Factor Authentication enabled</li>
+                        <li>5 minutes of your time</li>
+                    </ul>
+                </div>
+                
+                <div class="instruction-box">
+                    <h3>Why Gmail SMTP?</h3>
+                    <p>Gmail SMTP provides:</p>
+                    <ul>
+                        <li>✅ Reliable email delivery</li>
+                        <li>✅ Professional appearance</li>
+                        <li>✅ Free for reasonable volumes</li>
+                        <li>✅ Excellent spam filtering</li>
+                        <li>✅ Security and authentication</li>
+                    </ul>
+                </div>
+                
+                <div class="wizard-navigation">
+                    <div></div>
+                    <button class="btn" onclick="nextStep()">Get Started →</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Gmail Account Setup -->
+            <div class="step" id="step2">
+                <div class="step-header">
+                    <div class="step-number active">2</div>
+                    <h2 class="step-title">Prepare Your Gmail Account</h2>
+                    <p class="step-description">Enable 2FA and generate an app password</p>
+                </div>
+                
+                <div class="instruction-box">
+                    <h3>Follow these steps in order:</h3>
+                    <ol>
+                        <li><strong>Enable 2-Factor Authentication:</strong><br>
+                            Go to <a href="https://myaccount.google.com/security/2fa" target="_blank">Google 2FA Settings</a> and enable 2-step verification if not already done.</li>
+                        
+                        <li><strong>Generate App Password:</strong><br>
+                            Visit <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a></li>
+                        
+                        <li><strong>Select "Mail" as the app</strong></li>
+                        
+                        <li><strong>Copy the 16-digit password</strong><br>
+                            It looks like: <code>xxxx xxxx xxxx xxxx</code></li>
+                    </ol>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>💡 Tip:</strong> Keep the app password page open in another tab - you'll need it in the next step!
+                </div>
+                
+                <div class="wizard-navigation">
+                    <button class="btn secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn" onclick="nextStep()">I'm Ready →</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Configuration -->
+            <div class="step" id="step3">
+                <div class="step-header">
+                    <div class="step-number active">3</div>
+                    <h2 class="step-title">Enter Gmail Credentials</h2>
+                    <p class="step-description">Configure your Gmail SMTP settings</p>
+                </div>
+                
+                <div id="configMessage"></div>
+                
+                <form id="gmailConfigForm">
+                    <div class="form-group">
+                        <label for="gmailEmail">Gmail Address:</label>
+                        <input type="email" id="gmailEmail" placeholder="your-email@gmail.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appPassword">App Password (remove spaces):</label>
+                        <input type="password" id="appPassword" placeholder="xxxxxxxxxxxxxxxx" required maxlength="16">
+                        <small style="color: #6b7280;">Enter the 16-digit app password without spaces</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fromName">Display Name:</label>
+                        <input type="text" id="fromName" value="PharmaCare Pro" required>
+                        <small style="color: #6b7280;">This name will appear in emails sent to customers</small>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="saveConfigBtn">💾 Save Configuration</button>
+                </form>
+                
+                <div class="wizard-navigation">
+                    <button class="btn secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn" id="testBtn" onclick="nextStep()" disabled>Test Setup →</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Testing -->
+            <div class="step" id="step4">
+                <div class="step-header">
+                    <div class="step-number active">4</div>
+                    <h2 class="step-title">Test Your Setup</h2>
+                    <p class="step-description">Send test emails to verify everything works</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="testEmail">Test Email Address:</label>
+                    <input type="email" id="testEmail" placeholder="Enter email to test">
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <button class="btn" onclick="sendTestEmail()">📧 Send Test Email</button>
+                    <button class="btn" onclick="testVerificationEmail()">📩 Test Verification Email</button>
+                    <button class="btn" onclick="testPasswordResetEmail()">🔑 Test Password Reset</button>
+                </div>
+                
+                <div class="test-result" id="testResults"></div>
+                
+                <div class="wizard-navigation">
+                    <button class="btn secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn" onclick="completeSetup()">🎉 Complete Setup</button>
+                </div>
+            </div>
+            
+            <!-- Step 5: Completion -->
+            <div class="step" id="step5">
+                <div class="step-header">
+                    <div class="step-number active">✓</div>
+                    <h2 class="step-title">Setup Complete!</h2>
+                    <p class="step-description">Your Gmail SMTP is configured and ready</p>
+                </div>
+                
+                <div class="alert alert-success">
+                    <strong>🎉 Congratulations!</strong> Your PharmaCare Pro system is now configured to send real emails through Gmail SMTP.
+                </div>
+                
+                <div class="instruction-box">
+                    <h3>What happens next?</h3>
+                    <ul>
+                        <li>✅ Customer registrations will send real verification emails</li>
+                        <li>✅ Password resets will be delivered to users' inboxes</li>
+                        <li>✅ All emails use your Gmail account for delivery</li>
+                        <li>✅ Professional appearance with your display name</li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="window.location.href='auth.html'">🚀 Go to Customer Portal</button>
+                    <button class="btn secondary" onclick="window.location.href='quick-auth-test.html'">🧪 Test Authentication</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function showStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            // Update step numbers
+            document.querySelectorAll('.step-number').forEach((num, index) => {
+                if (index + 1 <= step) {
+                    num.classList.add('active');
+                } else {
+                    num.classList.remove('active');
+                }
+            });
+            
+            updateProgress();
+        }
+        
+        function nextStep() {
+            if (currentStep < 5) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+        
+        function completeSetup() {
+            currentStep = 5;
+            showStep(currentStep);
+        }
+        
+        // Form submission
+        document.getElementById('gmailConfigForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('saveConfigBtn');
+            const testBtn = document.getElementById('testBtn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+            
+            const config = {
+                username: document.getElementById('gmailEmail').value,
+                app_password: document.getElementById('appPassword').value.replace(/\s/g, ''),
+                from_name: document.getElementById('fromName').value
+            };
+            
+            try {
+                // First install PHPMailer
+                await fetch('./setup-gmail-smtp.php');
+                
+                // Then save configuration
+                const response = await fetch('./save-gmail-config.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Configuration saved successfully!', 'success');
+                    testBtn.disabled = false;
+                    
+                    // Pre-populate test email
+                    document.getElementById('testEmail').value = config.username;
+                } else {
+                    showMessage(result.message, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('Error saving configuration: ' + error.message, 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+        
+        function showMessage(message, type) {
+            const container = document.getElementById('configMessage');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+        
+        function logResult(message) {
+            const results = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function sendTestEmail() {
+            const testEmail = document.getElementById('testEmail').value;
+            if (!testEmail) {
+                logResult('❌ Please enter a test email address');
+                return;
+            }
+            
+            logResult(`📧 Sending test email to ${testEmail}...`);
+            
+            try {
+                const response = await fetch('./test-gmail-config.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test_email: testEmail })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    logResult('✅ Test email sent successfully!');
+                    logResult(`📨 Check ${testEmail} for the test message`);
+                } else {
+                    logResult('❌ Test email failed: ' + result.message);
+                }
+                
+            } catch (error) {
+                logResult('❌ Test email error: ' + error.message);
+            }
+        }
+        
+        async function testVerificationEmail() {
+            const testEmail = document.getElementById('testEmail').value;
+            if (!testEmail) {
+                logResult('❌ Please enter a test email address');
+                return;
+            }
+            
+            logResult(`📩 Sending verification email test to ${testEmail}...`);
+            
+            try {
+                const response = await fetch('./api/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName: 'Test',
+                        lastName: 'User',
+                        email: testEmail,
+                        phone: '+1234567890',
+                        password: 'TestPassword123!'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    logResult('✅ Verification email sent successfully!');
+                    logResult('📧 Check your email for the verification code');
+                } else {
+                    logResult('❌ Verification email failed: ' + result.message);
+                }
+                
+            } catch (error) {
+                logResult('❌ Verification test error: ' + error.message);
+            }
+        }
+        
+        async function testPasswordResetEmail() {
+            const testEmail = document.getElementById('testEmail').value;
+            if (!testEmail) {
+                logResult('❌ Please enter a test email address');
+                return;
+            }
+            
+            logResult(`🔑 Sending password reset test to ${testEmail}...`);
+            
+            try {
+                const response = await fetch('./api/password-reset.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: testEmail })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    logResult('✅ Password reset email sent successfully!');
+                    logResult('🔑 Check your email for the reset link');
+                } else {
+                    logResult('❌ Password reset failed: ' + result.message);
+                }
+                
+            } catch (error) {
+                logResult('❌ Password reset test error: ' + error.message);
+            }
+        }
+        
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - PharmaCare Pro</title>
+    <link rel="stylesheet" href="assets/css/modern.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h1 class="brand-title">PharmaCare Pro</h1>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Dashboard Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <ul>
+                        <li class="nav-item">
+                            <a href="dashboard_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Inventory Section -->
+                <div class="nav-section" id="inventorySection">
+                    <div class="nav-section-title">Inventory</div>
+                    <ul>
+                        <li class="nav-item">
+                            <a href="medicines_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-pills"></i>
+                                <span class="nav-text">Medicines</span>
+                                <span class="nav-badge" id="lowStockBadge">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" id="suppliersNav">
+                            <a href="suppliers_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <span class="nav-text">Suppliers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Sales Section -->
+                <div class="nav-section" id="salesSection">
+                    <div class="nav-section-title">Sales</div>
+                    <ul>
+                        <li class="nav-item">
+                            <a href="sales_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-cash-register"></i>
+                                <span class="nav-text">Point of Sale</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="customers_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i>
+                                <span class="nav-text">Customers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Reports Section -->
+                <div class="nav-section" id="reportsSection">
+                    <div class="nav-section-title">Analytics</div>
+                    <ul>
+                        <li class="nav-item">
+                            <a href="reports_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <span class="nav-text">Reports</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Administration Section (Admin Only) -->
+                <div class="nav-section" id="adminSection" style="display: none;">
+                    <div class="nav-section-title">Administration</div>
+                    <ul>
+                        <li class="nav-item">
+                            <a href="users_modern.html" class="nav-link">
+                                <i class="nav-icon fas fa-user-cog"></i>
+                                <span class="nav-text">User Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="settings_modern.html" class="nav-link active">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <span class="nav-text">Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-title" id="pageTitle">System Settings</div>
+                <div class="header-actions">
+                    <button class="notification-btn" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">3</span>
+                    </button>
+                    
+                    <!-- User Avatar in Header -->
+                    <div class="header-user-profile">
+                        <div class="user-avatar" id="headerUserAvatar">A</div>
+                        <div class="user-info">
+                            <span class="user-name" id="headerUserName">Loading...</span>
+                            <span class="user-role" id="headerUserRole">...</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="info-message">
+                    <i class="fas fa-cog"></i>
+                    <h3>System Settings</h3>
+                    <p>The system settings panel is under development and will include:</p>
+                    <ul style="text-align: left; display: inline-block; margin: 20px 0;">
+                        <li>General system configuration</li>
+                        <li>Database connection settings</li>
+                        <li>Security and authentication settings</li>
+                        <li>Notification preferences</li>
+                        <li>Backup and restore options</li>
+                        <li>API configuration</li>
+                        <li>System maintenance tools</li>
+                        <li>License management</li>
+                    </ul>
+                    <p><strong>Note:</strong> Settings access is restricted based on user roles.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/main_session_fixed.js"></script>
+    <script src="assets/js/page_session_validator.js"></script>
+    <script>
+        class SettingsManager {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                this.loadUserData();
+                this.updateUI();
+            }
+            
+            loadUserData() {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    this.updateUserDisplay();
+                }
+            }
+            
+            updateUserDisplay() {
+                if (!this.currentUser) return;
+                
+                const elements = {
+                    headerUserName: this.currentUser.full_name || this.currentUser.username,
+                    headerUserRole: this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1),
+                    headerUserAvatar: (this.currentUser.full_name || this.currentUser.username).charAt(0).toUpperCase()
+                };
+                
+                Object.entries(elements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = value;
+                });
+            }
+            
+            updateUI() {
+                // Future implementation
+            }
+        }
+        
+        function showNotifications() {
+            console.log('Showing notifications...');
+        }
+        
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('csrf_token');
+            window.location.href = 'index.html';
+        }
+        
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            new SettingsManager();
+        });
+    </script>
+</body>
+</html>

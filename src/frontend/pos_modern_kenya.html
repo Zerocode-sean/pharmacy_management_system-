@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System - PharmaCare Kenya</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --kenya-red: #dc2626;
+            --kenya-green: #16a34a;
+            --kenya-black: #0f172a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Layout */
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Header */
+        .pos-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--kenya-black) 0%, var(--dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .pos-header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pos-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--kenya-green);
+        }
+
+        .kenya-flag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .flag-colors {
+            display: flex;
+            gap: 2px;
+        }
+
+        .flag-stripe {
+            width: 4px;
+            height: 16px;
+        }
+
+        .pos-header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--kenya-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: var(--kenya-red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        /* Main POS Area */
+        .pos-main {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Search & Actions */
+        .pos-search-bar {
+            padding: 20px;
+            border-bottom: 2px solid var(--border);
+            background: white;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .barcode-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .barcode-input {
+            width: 100%;
+            padding: 12px 50px 12px 50px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+            background: #f8f9fa;
+        }
+
+        .barcode-input:focus {
+            border-color: var(--kenya-green);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            background: white;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 50px 14px 50px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text);
+            opacity: 0.5;
+        }
+
+        .barcode-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--kenya-green);
+            font-size: 20px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .quick-btn:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-btn i {
+            font-size: 14px;
+        }
+
+        /* Medicine Grid */
+        .medicine-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            align-content: start;
+        }
+
+        .medicine-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .medicine-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .medicine-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .medicine-generic {
+            font-size: 12px;
+            color: var(--text);
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .medicine-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--kenya-green);
+            margin-bottom: 8px;
+        }
+
+        .medicine-stock {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--light);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .medicine-stock.low {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .medicine-stock.out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Cart Sidebar */
+        .pos-cart {
+            background: #f8fafc;
+            border-left: 3px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .cart-header {
+            padding: 20px;
+            background: white;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .cart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-count {
+            background: var(--kenya-green);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Customer Lookup Styles */
+        .customer-lookup {
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+            background: #fff3cd; /* Highlight with yellow background */
+            border: 2px solid #ffc107; /* Yellow border */
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .customer-search-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .customer-search-input {
+            width: 100%;
+            padding: 8px 35px 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .customer-search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .customer-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .selected-customer {
+            background: var(--light);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .customer-info-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--kenya-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+        }
+
+        .customer-details-small {
+            flex: 1;
+        }
+
+        .customer-name-small {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--dark);
+        }
+
+        .customer-phone-small {
+            font-size: 11px;
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        .remove-customer-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+
+        .remove-customer-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .customer-results {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        .customer-result-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .customer-result-item:hover {
+            background: var(--light);
+        }
+
+        .customer-result-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Receipt Styles */
+        .receipt-content {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            background: white;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #666;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .receipt-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .receipt-subtitle {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .receipt-info {
+            margin-bottom: 15px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .receipt-items {
+            border-top: 1px dashed #666;
+            border-bottom: 1px dashed #666;
+            padding: 10px 0;
+            margin: 10px 0;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+
+        .receipt-item-name {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .receipt-item-qty {
+            width: 30px;
+            text-align: center;
+        }
+
+        .receipt-item-price {
+            width: 60px;
+            text-align: right;
+        }
+
+        .receipt-totals {
+            margin-top: 10px;
+        }
+
+        .receipt-total {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .customer-result-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--dark);
+        }
+
+        .customer-result-details {
+            font-size: 11px;
+            color: var(--text);
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Cart Items */
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .cart-item {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .cart-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--dark);
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .cart-item-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .cart-item-remove:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .qty-display {
+            font-size: 16px;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .cart-item-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--kenya-green);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text);
+            opacity: 0.5;
+        }
+
+        .empty-cart i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Cart Footer */
+        .cart-footer {
+            background: white;
+            border-top: 2px solid var(--border);
+            padding: 20px;
+        }
+
+        .cart-totals {
+            margin-bottom: 20px;
+        }
+
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .cart-total-row.grand {
+            padding-top: 15px;
+            border-top: 2px solid var(--border);
+            margin-top: 15px;
+        }
+
+        .cart-total-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .cart-total-label.grand {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .cart-total-value {
+            font-weight: 800;
+            color: var(--kenya-green);
+        }
+
+        .cart-total-value.grand {
+            font-size: 32px;
+            color: var(--kenya-green);
+        }
+
+        .checkout-actions {
+            display: grid;
+            gap: 12px;
+        }
+
+        .checkout-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .checkout-btn-primary {
+            background: var(--kenya-green);
+            color: white;
+        }
+
+        .checkout-btn-primary:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.3);
+        }
+
+        .checkout-btn-secondary {
+            background: white;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .checkout-btn-secondary:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .pos-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px 1fr 400px;
+            }
+
+            .pos-cart {
+                border-left: none;
+                border-top: 3px solid var(--border);
+                min-height: 400px;
+                max-height: 400px;
+            }
+
+            .cart-items {
+                max-height: 250px;
+                overflow-y: auto;
+            }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--border);
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Receipt Styles */
+        .receipt-content {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text);
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #666;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .receipt-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .receipt-subtitle {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        .receipt-info {
+            margin-bottom: 15px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .receipt-items {
+            border-top: 1px dashed #666;
+            border-bottom: 1px dashed #666;
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .receipt-item-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .receipt-item-qty {
+            width: 30px;
+            text-align: center;
+        }
+
+        .receipt-item-price {
+            width: 60px;
+            text-align: right;
+        }
+
+        .receipt-totals {
+            margin-bottom: 15px;
+        }
+
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+            border-top: 1px solid #666;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            border-top: 1px dashed #666;
+            padding-top: 10px;
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        /* Payment Modal Styles */
+        .payment-summary {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 2px solid var(--border);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .summary-row.final-total {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--kenya-green);
+            border-top: 2px solid var(--kenya-green);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .payment-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .discount-summary {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        }
+
+        /* Analytics Styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .analytics-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .analytics-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: var(--kenya-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .analytics-content {
+            flex: 1;
+        }
+
+        .analytics-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .analytics-label {
+            font-size: 14px;
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        .analytics-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .top-items {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .top-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-item:last-child {
+            border-bottom: none;
+        }
+
+        .no-data {
+            text-align: center;
+            color: var(--text);
+            opacity: 0.6;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle" style="font-size: 20px; color: var(--success);"></i>
+        <span id="notificationText"></span>
+    </div>
+
+    <!-- POS Container -->
+    <div class="pos-container">
+        <!-- Header -->
+        <header class="pos-header">
+            <div class="pos-header-left">
+                <div class="pos-logo">
+                    <i class="fas fa-capsules"></i> PharmaCare POS
+                </div>
+                <div class="kenya-flag">
+                    <div class="flag-colors">
+                        <div class="flag-stripe" style="background: #000000;"></div>
+                        <div class="flag-stripe" style="background: #DC143C;"></div>
+                        <div class="flag-stripe" style="background: #006400;"></div>
+                    </div>
+                    <span>Kenya</span>
+                </div>
+            </div>
+            <div class="pos-header-right">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">C</div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 600;" id="userName">Cashier</div>
+                        <div style="font-size: 12px; opacity: 0.8;" id="userRole">Cashier</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main POS Area -->
+        <div class="pos-main">
+            <!-- Search Bar -->
+            <div class="pos-search-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput"
+                        placeholder="Search medicines by name, generic name..."
+                        autofocus
+                    >
+                    <i class="fas fa-barcode barcode-icon"></i>
+                </div>
+                <div class="barcode-container">
+                    <i class="fas fa-barcode" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--kenya-green);"></i>
+                    <input 
+                        type="text" 
+                        class="barcode-input" 
+                        id="barcodeInput"
+                        placeholder="Scan barcode here..."
+                    >
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="showAllMedicines()">
+                        <i class="fas fa-th"></i> All Items
+                    </button>
+                    <button class="quick-btn" onclick="filterByCategory('painkillers')">
+                        <i class="fas fa-tablets"></i> Painkillers
+                    </button>
+                    <button class="quick-btn" onclick="filterByCategory('antibiotics')">
+                        <i class="fas fa-prescription-bottle"></i> Antibiotics
+                    </button>
+                    <button class="quick-btn" onclick="showAnalytics()">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
+                    <button class="quick-btn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Medicine Grid -->
+            <div class="medicine-grid" id="medicineGrid">
+                <!-- Medicines loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Cart Sidebar -->
+        <aside class="pos-cart">
+            <!-- Cart Header -->
+            <div class="cart-header">
+                <div class="cart-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Cart
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+
+                <!-- Customer Lookup Section -->
+                <div style="font-weight: bold; color: #856404; margin-bottom: 10px; font-size: 14px;">
+                    <i class="fas fa-user"></i> Customer Search (NEW FEATURE)
+                </div>
+                <div class="customer-lookup" style="margin-top: 15px; max-height: 200px; overflow-y: auto;">
+                    <div class="customer-search-container">
+                        <input
+                            type="text"
+                            class="customer-search-input"
+                            id="customerSearchInput"
+                            placeholder="Search customer by name or phone..."
+                            autocomplete="off"
+                        >
+                        <button class="customer-search-btn" onclick="searchCustomers()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="selected-customer" id="selectedCustomer" style="display: none;">
+                        <div class="customer-info-display">
+                            <div class="customer-avatar-small" id="customerAvatar">JD</div>
+                            <div class="customer-details-small">
+                                <div class="customer-name-small" id="customerName">John Doe</div>
+                                <div class="customer-phone-small" id="customerPhone">+254 712 345 678</div>
+                            </div>
+                            <button class="remove-customer-btn" onclick="removeCustomer()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="customer-results" id="customerResults" style="display: none;">
+                        <!-- Customer search results will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div>Cart is empty</div>
+                    <div style="font-size: 13px; margin-top: 8px;">Add items to get started</div>
+                </div>
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="cart-footer">
+                <div class="cart-totals">
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">Subtotal:</span>
+                        <span class="cart-total-value" id="cartSubtotal">KSh 0.00</span>
+                    </div>
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">Tax (0%):</span>
+                        <span class="cart-total-value" id="cartTax">KSh 0.00</span>
+                    </div>
+                    <div class="cart-total-row grand">
+                        <span class="cart-total-label grand">TOTAL:</span>
+                        <span class="cart-total-value grand" id="cartTotal">KSh 0.00</span>
+                    </div>
+                </div>
+
+                <div class="checkout-actions">
+                    <button class="checkout-btn checkout-btn-primary" onclick="proceedToCheckout()" id="checkoutBtn" disabled>
+                        <i class="fas fa-cash-register"></i>
+                        Checkout
+                    </button>
+                    <button class="checkout-btn checkout-btn-secondary" onclick="clearCart()">
+                        <i class="fas fa-trash"></i>
+                        Clear Cart
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Sale Receipt</h2>
+                <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="receiptContent" class="receipt-content">
+                    <!-- Receipt content will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeReceiptModal()">Close</button>
+                <button class="btn-primary" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div id="analyticsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Sales Analytics</h2>
+                <button class="modal-close" onclick="closeAnalyticsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="analytics-value" id="totalSales">KSh 0.00</div>
+                            <div class="analytics-label">Today's Sales</div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="analytics-value" id="totalTransactions">0</div>
+                            <div class="analytics-label">Transactions</div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="analytics-value" id="itemsSold">0</div>
+                            <div class="analytics-label">Items Sold</div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="analytics-value" id="avgTransaction">KSh 0.00</div>
+                            <div class="analytics-label">Avg Transaction</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h3>Top Selling Items</h3>
+                    <div class="top-items" id="topItems">
+                        <div class="no-data">No sales data available</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAnalyticsModal()">Close</button>
+                <button class="btn-primary" onclick="refreshAnalytics()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Complete Payment</h2>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="paymentSubtotal">KSh 0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (0%):</span>
+                        <span id="paymentTax">KSh 0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>TOTAL:</span>
+                        <span id="paymentTotal">KSh 0.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-form">
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method:</label>
+                        <select id="paymentMethod" class="form-control">
+                            <option value="cash">Cash</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="card">Card</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="discountAmount">Discount (KSh):</label>
+                        <input type="number" id="discountAmount" class="form-control" placeholder="0.00" min="0" step="0.01">
+                    </div>
+
+                    <div class="discount-summary" id="discountSummary" style="display: none;">
+                        <div class="summary-row">
+                            <span>Discount:</span>
+                            <span id="discountDisplay">-KSh 0.00</span>
+                        </div>
+                        <div class="summary-row final-total">
+                            <span>FINAL TOTAL:</span>
+                            <span id="finalTotal">KSh 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmPayment()">
+                    <i class="fas fa-check"></i> Complete Sale
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main_session_fixed.js"></script>
+    <script>
+        // POS System - Modern Kenya Version
+        // The shared script `main_session_fixed.js` also defines the global
+        // `API_BASE_URL`. To avoid redeclaration errors when both are loaded,
+        // only provide a fallback here if it isn't already defined.
+        if (typeof window.API_BASE_URL === 'undefined') {
+            window.API_BASE_URL = 'http://localhost/Phamarcy/src/backend/api/';
+        }
+        
+        // State
+        let allMedicines = [];
+        let filteredMedicines = [];
+        let cart = [];
+        let currentUser = null;
+        let selectedCustomer = null;
+        let customers = [];
+
+        // Format currency in Kenyan Shillings
+        function formatKES(amount) {
+            return 'KSh ' + parseFloat(amount).toLocaleString('en-KE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Initialize POS
+        async function initPOS() {
+            showLoading(true);
+            try {
+                // Check authentication
+                await checkAuth();
+                
+                // Load medicines
+                await loadMedicines();
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+                console.log('✅ POS initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize POS:', error);
+                showNotification('Failed to load POS system', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                if (typeof window.PharmacyApp !== 'undefined' && window.PharmacyApp.APIService) {
+                    const sessionCheck = await window.PharmacyApp.APIService.checkSession();
+                    
+                    if (!sessionCheck.logged_in || !sessionCheck.session_valid) {
+                        console.warn('⚠️ No active session - using development mode');
+                        currentUser = { username: 'Demo User', role: 'cashier' };
+                        updateUserDisplay();
+                        return;
+                    }
+                    
+                    if (sessionCheck.user_info) {
+                        currentUser = sessionCheck.user_info;
+                        updateUserDisplay();
+                    }
+                } else {
+                    // Fallback to localStorage
+                    const userData = localStorage.getItem('user');
+                    if (!userData) {
+                        console.warn('⚠️ No user in localStorage - using development mode');
+                        currentUser = { username: 'Demo User', role: 'cashier' };
+                        updateUserDisplay();
+                        return;
+                    }
+                    currentUser = JSON.parse(userData);
+                    updateUserDisplay();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Allow POS to load anyway in development
+                currentUser = { username: 'Demo User', role: 'cashier' };
+                updateUserDisplay();
+            }
+        }
+
+        // Update user display
+        function updateUserDisplay() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.username || 'Cashier';
+                document.getElementById('userRole').textContent = currentUser.role || 'cashier';
+                document.getElementById('userAvatar').textContent = (currentUser.username || 'C').charAt(0).toUpperCase();
+            }
+        }
+
+        // Initialize session for localhost development
+        async function initializeSession() {
+            try {
+                console.log('🔐 Initializing session for POS...');
+                
+                // Make a request to check_session.php to establish session
+                const response = await fetch(API_BASE_URL + 'check_session.php', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Session initialized:', data);
+                    return true;
+                } else {
+                    console.warn('⚠️ Session initialization failed, but continuing...');
+                    return false;
+                }
+            } catch (error) {
+                console.warn('⚠️ Session initialization error, but continuing:', error);
+                return false;
+            }
+        }
+
+        // Load medicines from database
+        async function loadMedicines() {
+            try {
+                console.log('🔄 Fetching medicines from:', API_BASE_URL + 'medicines.php');
+                
+                // First ensure we have a session
+                await initializeSession();
+                
+                const response = await fetch(API_BASE_URL + 'medicines.php', {
+                    credentials: 'include'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Data received:', data);
+                
+                if (data.success && data.data) {
+                    console.log(`📊 Total medicines from API: ${data.data.length}`);
+                    
+                    // Filter for POS display
+                    allMedicines = data.data.filter(med => {
+                        const hasStock = parseInt(med.stock_quantity) > 0;
+                        const isActive = med.is_active == '1' || med.is_active == 1;
+                        console.log(`🔍 Medicine ${med.name}: stock=${med.stock_quantity} (${typeof med.stock_quantity}), active=${med.is_active} (${typeof med.is_active}), include=${hasStock && isActive}`);
+                        return hasStock && isActive;
+                    });
+                    console.log(`✅ Medicines available for POS: ${allMedicines.length}`, allMedicines.map(m => ({id: m.id, name: m.name, stock: m.stock_quantity})));
+                    
+                    filteredMedicines = [...allMedicines];
+                    displayMedicines();
+                    showNotification(`Loaded ${allMedicines.length} medicines`, 'success');
+                } else {
+                    console.error('❌ API returned error:', data);
+                    throw new Error(data.message || 'Failed to load medicines');
+                }
+            } catch (error) {
+                console.error('💥 Error loading medicines:', error);
+                const grid = document.getElementById('medicineGrid');
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">Failed to Load Medicines</div>
+                        <div style="font-size: 14px; opacity: 0.8;">${error.message}</div>
+                        <button onclick="loadMedicines()" style="margin-top: 20px; padding: 12px 24px; background: #16a34a; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+                showNotification('Failed to load medicines: ' + error.message, 'error');
+            }
+        }
+
+        // Display medicines in grid
+        function displayMedicines() {
+            const grid = document.getElementById('medicineGrid');
+            console.log('🏥 displayMedicines called, filteredMedicines length:', filteredMedicines.length);
+
+            if (filteredMedicines.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8;">No medicines found</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredMedicines.map(med => `
+                <div class="medicine-card" onclick="addToCart(${med.id})">
+                    <div class="medicine-name">${escapeHtml(med.name)}</div>
+                    <div class="medicine-generic">${escapeHtml(med.generic_name || 'N/A')}</div>
+                    <div class="medicine-price">${formatKES(med.unit_price)}</div>
+                    <div class="medicine-stock ${getStockClass(med.stock_quantity)}">
+                        <i class="fas fa-boxes"></i> ${med.stock_quantity} in stock
+                    </div>
+                </div>
+            `).join('');
+
+            console.log('💊 Medicine cards rendered, first few:', filteredMedicines.slice(0, 3).map(m => ({id: m.id, name: m.name})));
+        }
+
+        // Get stock status class
+        function getStockClass(quantity) {
+            if (quantity === 0) return 'out';
+            if (quantity <= 10) return 'low';
+            return '';
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Add item to cart
+        function addToCart(medicineId) {
+            console.log('🛒 addToCart called with medicineId:', medicineId, 'type:', typeof medicineId);
+            console.log('📊 allMedicines array length:', allMedicines.length);
+            console.log('📊 allMedicines IDs:', allMedicines.map(m => ({id: m.id, type: typeof m.id})));
+
+            const medicine = allMedicines.find(m => {
+                const match = m.id == medicineId; // Use == for type coercion
+                console.log(`🔍 Checking medicine ${m.name} (id: ${m.id} ${typeof m.id}) against ${medicineId} ${typeof medicineId} = ${match}`);
+                return match;
+            });
+            console.log('🔍 Found medicine:', medicine);
+
+            if (!medicine) {
+                console.error('❌ Medicine not found for ID:', medicineId);
+                showNotification('Medicine not found', 'error');
+                return;
+            }
+
+            // Check if already in cart
+            const existingItem = cart.find(item => item.id === medicineId);
+
+            if (existingItem) {
+                // Check stock
+                if (existingItem.quantity >= medicine.stock_quantity) {
+                    showNotification(`Only ${medicine.stock_quantity} available in stock`, 'error');
+                    return;
+                }
+                existingItem.quantity++;
+                console.log('➕ Increased quantity for existing item:', existingItem);
+            } else {
+                cart.push({
+                    id: medicine.id,
+                    name: medicine.name,
+                    generic_name: medicine.generic_name,
+                    price: parseFloat(medicine.unit_price),
+                    quantity: 1,
+                    stock: medicine.stock_quantity
+                });
+                console.log('🆕 Added new item to cart:', cart[cart.length - 1]);
+            }
+
+            console.log('🛒 Current cart:', cart);
+            updateCart();
+            showNotification(`Added ${medicine.name} to cart`, 'success');
+        }
+
+        // Update cart display
+        function updateCart() {
+            console.log('🔄 updateCart called, cart length:', cart.length);
+
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            console.log('📍 Cart elements found:', {
+                cartItemsDiv: !!cartItemsDiv,
+                cartCount: !!cartCount,
+                checkoutBtn: !!checkoutBtn
+            });
+
+            if (cartItemsDiv) {
+                console.log('📍 Cart items div styles:', {
+                    display: getComputedStyle(cartItemsDiv).display,
+                    visibility: getComputedStyle(cartItemsDiv).visibility,
+                    opacity: getComputedStyle(cartItemsDiv).opacity,
+                    height: cartItemsDiv.offsetHeight
+                });
+            }
+
+            if (!cartItemsDiv || !cartCount || !checkoutBtn) {
+                console.error('❌ Cart elements not found!');
+                return;
+            }
+
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div>Cart is empty</div>
+                        <div style="font-size: 13px; margin-top: 8px;">Add items to get started</div>
+                    </div>
+                `;
+                cartCount.textContent = '0';
+                checkoutBtn.disabled = true;
+                console.log('📭 Cart is empty, updated UI');
+            } else {
+                cartItemsDiv.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-header">
+                            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+                            <button class="cart-item-remove" onclick="removeFromCart(${item.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="cart-item-controls">
+                            <div class="quantity-control">
+                                <button class="qty-btn" onclick="console.log('Minus clicked for item ${item.id}'); updateQuantity(${item.id}, -1)">-</button>
+                                <span class="qty-display">${item.quantity}</span>
+                                <button class="qty-btn" onclick="console.log('Plus clicked for item ${item.id}'); updateQuantity(${item.id}, 1)">+</button>
+                            </div>
+                            <div class="cart-item-price">${formatKES(item.price * item.quantity)}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+                checkoutBtn.disabled = false;
+                console.log('📦 Cart updated with', totalItems, 'items');
+                console.log('📦 Cart HTML set:', cartItemsDiv.innerHTML.substring(0, 200) + '...');
+
+                // Force DOM update check
+                setTimeout(() => {
+                    console.log('⏰ DOM update check:', {
+                        cartCount: cartCount.textContent,
+                        cartItemsLength: cartItemsDiv.innerHTML.length,
+                        checkoutDisabled: checkoutBtn.disabled,
+                        cartItemsVisible: cartItemsDiv.offsetHeight > 0
+                    });
+                }, 100);
+            }
+
+            updateTotals();
+        }        // Update cart totals
+        function updateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0; // 0% tax for now
+            const total = subtotal + tax;
+            
+            document.getElementById('cartSubtotal').textContent = formatKES(subtotal);
+            document.getElementById('cartTax').textContent = formatKES(tax);
+            document.getElementById('cartTotal').textContent = formatKES(total);
+        }
+
+        // Update quantity
+        function updateQuantity(medicineId, change) {
+            console.log('🔢 updateQuantity called:', { medicineId, change, type: typeof medicineId });
+            console.log('🛒 Current cart state:', cart.map(item => ({id: item.id, type: typeof item.id, name: item.name})));
+            
+            const item = cart.find(i => {
+                const match = i.id == medicineId; // Use loose equality for type coercion
+                console.log(`🔍 Checking cart item ${i.name} (id: ${i.id} ${typeof i.id}) against ${medicineId} ${typeof medicineId} = ${match}`);
+                return match;
+            });
+            console.log('🔍 Item found:', item);
+            
+            if (!item) {
+                console.error('❌ Item not found in cart for ID:', medicineId);
+                return;
+            }
+            
+            const newQuantity = item.quantity + change;
+            console.log('📊 Quantity calculation:', { current: item.quantity, change, new: newQuantity, stock: item.stock });
+            
+            if (newQuantity <= 0) {
+                console.log('🗑️ Removing item from cart');
+                removeFromCart(medicineId);
+                return;
+            }
+            
+            if (newQuantity > item.stock) {
+                console.log('⚠️ Stock limit reached');
+                showNotification(`Only ${item.stock} available in stock`, 'error');
+                return;
+            }
+            
+            item.quantity = newQuantity;
+            console.log('✅ Quantity updated, calling updateCart');
+            updateCart();
+        }
+
+        // Remove from cart
+        function removeFromCart(medicineId) {
+            cart = cart.filter(item => item.id !== medicineId);
+            updateCart();
+            showNotification('Item removed from cart', 'success');
+        }
+
+        // Clear cart
+        function clearCart() {
+            if (cart.length === 0) return;
+            
+            if (confirm('Clear all items from cart?')) {
+                cart = [];
+                updateCart();
+                showNotification('Cart cleared', 'success');
+            }
+        }
+
+        // Proceed to checkout
+        async function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Cart is empty', 'warning');
+                return;
+            }
+
+            // Show payment modal instead of direct checkout
+            showPaymentModal();
+        }
+
+        // Generate receipt
+        async function generateReceipt(saleId, saleData) {
+            try {
+                // Create receipt data
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const discount = saleData.discount_amount || 0;
+                const tax = saleData.tax_amount || 0;
+                const total = subtotal - discount + tax;
+                
+                const receiptData = {
+                    sale_id: saleId,
+                    customer: selectedCustomer,
+                    items: cart,
+                    totals: {
+                        subtotal: subtotal,
+                        discount: discount,
+                        tax: tax,
+                        total: total
+                    },
+                    payment_method: saleData.payment_method,
+                    timestamp: new Date().toISOString(),
+                    cashier: currentUser ? currentUser.username : 'Cashier'
+                };
+
+                // Store receipt data for printing
+                sessionStorage.setItem('last_receipt', JSON.stringify(receiptData));
+
+                // Display receipt in modal
+                displayReceiptModal(receiptData);
+
+                console.log('Receipt generated:', receiptData);
+
+            } catch (error) {
+                console.error('Receipt generation error:', error);
+            }
+        }
+
+        function displayReceiptModal(receiptData) {
+            console.log('🧾 displayReceiptModal called with:', receiptData);
+            
+            const receiptContent = document.getElementById('receiptContent');
+            const receiptModal = document.getElementById('receiptModal');
+            
+            console.log('📍 Modal elements found:', {
+                receiptContent: !!receiptContent,
+                receiptModal: !!receiptModal
+            });
+
+            if (!receiptContent || !receiptModal) {
+                console.error('❌ Receipt modal elements not found!');
+                return;
+            }
+
+            const receiptHTML = `
+                <div class="receipt-header">
+                    <div class="receipt-title">PHARMACY POS</div>
+                    <div class="receipt-subtitle">Modern Pharmacy System</div>
+                </div>
+
+                <div class="receipt-info">
+                    <div class="receipt-row">
+                        <span>Date:</span>
+                        <span>${new Date(receiptData.timestamp).toLocaleDateString()}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Time:</span>
+                        <span>${new Date(receiptData.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Receipt #:</span>
+                        <span>${receiptData.sale_id}</span>
+                    </div>
+                    ${receiptData.customer ? `
+                    <div class="receipt-row">
+                        <span>Customer:</span>
+                        <span>${receiptData.customer.name}</span>
+                    </div>
+                    ` : ''}
+                    <div class="receipt-row">
+                        <span>Cashier:</span>
+                        <span>${receiptData.cashier}</span>
+                    </div>
+                </div>
+
+                <div class="receipt-items">
+                    ${receiptData.items.map(item => `
+                        <div class="receipt-item">
+                            <div class="receipt-item-name">${item.name}</div>
+                            <div class="receipt-item-qty">${item.quantity}</div>
+                            <div class="receipt-item-price">KSh ${item.price.toFixed(2)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="receipt-totals">
+                    <div class="receipt-row">
+                        <span>Subtotal:</span>
+                        <span>KSh ${receiptData.totals.subtotal.toFixed(2)}</span>
+                    </div>
+                    ${receiptData.totals.discount > 0 ? `
+                    <div class="receipt-row">
+                        <span>Discount:</span>
+                        <span>-KSh ${receiptData.totals.discount.toFixed(2)}</span>
+                    </div>
+                    ` : ''}
+                    <div class="receipt-row">
+                        <span>Tax (16%):</span>
+                        <span>KSh ${receiptData.totals.tax.toFixed(2)}</span>
+                    </div>
+                    <div class="receipt-total">
+                        <span>TOTAL:</span>
+                        <span>KSh ${receiptData.totals.total.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <div>Payment: ${receiptData.payment_method || 'Cash'}</div>
+                    <div>Thank you for your business!</div>
+                    <div>Visit us again soon.</div>
+                </div>
+            `;
+
+            receiptContent.innerHTML = receiptHTML;
+            document.getElementById('receiptModal').style.display = 'block';
+            
+            console.log('✅ Receipt modal should now be visible');
+        }
+
+        function printReceipt() {
+            const receiptData = JSON.parse(sessionStorage.getItem('last_receipt'));
+            if (!receiptData) {
+                showNotification('No receipt data available', 'error');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Receipt - ${receiptData.sale_id}</title>
+                        <style>
+                            body {
+                                font-family: 'Courier New', monospace;
+                                font-size: 12px;
+                                line-height: 1.4;
+                                margin: 0;
+                                padding: 20px;
+                                max-width: 300px;
+                            }
+                            .receipt-header {
+                                text-align: center;
+                                border-bottom: 1px dashed #666;
+                                padding-bottom: 10px;
+                                margin-bottom: 15px;
+                            }
+                            .receipt-title {
+                                font-size: 16px;
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                            }
+                            .receipt-subtitle {
+                                font-size: 10px;
+                                color: #666;
+                            }
+                            .receipt-info {
+                                margin-bottom: 15px;
+                            }
+                            .receipt-row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 5px;
+                            }
+                            .receipt-items {
+                                border-top: 1px dashed #666;
+                                border-bottom: 1px dashed #666;
+                                padding: 10px 0;
+                                margin: 10px 0;
+                            }
+                            .receipt-item {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 5px;
+                                font-size: 11px;
+                            }
+                            .receipt-item-name {
+                                flex: 1;
+                                margin-right: 10px;
+                            }
+                            .receipt-item-qty {
+                                width: 30px;
+                                text-align: center;
+                            }
+                            .receipt-item-price {
+                                width: 60px;
+                                text-align: right;
+                            }
+                            .receipt-totals {
+                                margin-top: 10px;
+                            }
+                            .receipt-total {
+                                border-top: 1px solid #000;
+                                padding-top: 5px;
+                                font-weight: bold;
+                                font-size: 13px;
+                            }
+                            .receipt-footer {
+                                text-align: center;
+                                margin-top: 15px;
+                                font-size: 10px;
+                                color: #666;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="receipt-header">
+                            <div class="receipt-title">PHARMACY POS</div>
+                            <div class="receipt-subtitle">Modern Pharmacy System</div>
+                        </div>
+
+                        <div class="receipt-info">
+                            <div class="receipt-row">
+                                <span>Date:</span>
+                                <span>${new Date(receiptData.timestamp).toLocaleDateString()}</span>
+                            </div>
+                            <div class="receipt-row">
+                                <span>Time:</span>
+                                <span>${new Date(receiptData.timestamp).toLocaleTimeString()}</span>
+                            </div>
+                            <div class="receipt-row">
+                                <span>Receipt #:</span>
+                                <span>${receiptData.sale_id}</span>
+                            </div>
+                            ${receiptData.customer ? `
+                            <div class="receipt-row">
+                                <span>Customer:</span>
+                                <span>${receiptData.customer.name}</span>
+                            </div>
+                            ` : ''}
+                            <div class="receipt-row">
+                                <span>Cashier:</span>
+                                <span>${receiptData.cashier}</span>
+                            </div>
+                        </div>
+
+                        <div class="receipt-items">
+                            ${receiptData.items.map(item => `
+                                <div class="receipt-item">
+                                    <div class="receipt-item-name">${item.name}</div>
+                                    <div class="receipt-item-qty">${item.quantity}</div>
+                                    <div class="receipt-item-price">KSh ${item.price.toFixed(2)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="receipt-totals">
+                            <div class="receipt-row">
+                                <span>Subtotal:</span>
+                                <span>KSh ${receiptData.totals.subtotal.toFixed(2)}</span>
+                            </div>
+                            ${receiptData.totals.discount > 0 ? `
+                            <div class="receipt-row">
+                                <span>Discount:</span>
+                                <span>-KSh ${receiptData.totals.discount.toFixed(2)}</span>
+                            </div>
+                            ` : ''}
+                            <div class="receipt-row">
+                                <span>Tax (16%):</span>
+                                <span>KSh ${receiptData.totals.tax.toFixed(2)}</span>
+                            </div>
+                            <div class="receipt-total">
+                                <span>TOTAL:</span>
+                                <span>KSh ${receiptData.totals.total.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="receipt-footer">
+                            <div>Payment: ${receiptData.payment_method || 'Cash'}</div>
+                            <div>Thank you for your business!</div>
+                            <div>Visit us again soon.</div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+
+        // Payment Modal Functions
+        function showPaymentModal() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = 0; // 0% tax
+            const total = subtotal + tax;
+
+            document.getElementById('paymentSubtotal').textContent = formatKES(subtotal);
+            document.getElementById('paymentTax').textContent = formatKES(tax);
+            document.getElementById('paymentTotal').textContent = formatKES(total);
+            document.getElementById('finalTotal').textContent = formatKES(total);
+
+            // Reset discount
+            document.getElementById('discountAmount').value = '';
+            document.getElementById('discountSummary').style.display = 'none';
+
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function updateDiscount() {
+            const discountInput = document.getElementById('discountAmount');
+            const discount = parseFloat(discountInput.value) || 0;
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = 0;
+            const total = subtotal + tax;
+            const finalTotal = Math.max(0, total - discount);
+
+            document.getElementById('discountDisplay').textContent = formatKES(discount);
+            document.getElementById('finalTotal').textContent = formatKES(finalTotal);
+
+            const discountSummary = document.getElementById('discountSummary');
+            if (discount > 0) {
+                discountSummary.style.display = 'block';
+            } else {
+                discountSummary.style.display = 'none';
+            }
+        }
+
+        async function confirmPayment() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const discountAmount = parseFloat(document.getElementById('discountAmount').value) || 0;
+
+            // Validate stock before proceeding
+            for (const item of cart) {
+                if (item.quantity > item.stock) {
+                    showNotification(`Insufficient stock for ${item.name}. Available: ${item.stock}`, 'error');
+                    return;
+                }
+            }
+
+            // Close payment modal
+            closePaymentModal();
+
+            // Show loading
+            showLoading(true);
+
+            try {
+                // Prepare sale data
+                const saleData = {
+                    customer_id: selectedCustomer ? selectedCustomer.id : null,
+                    items: cart.map(item => ({
+                        medicine_id: item.id,
+                        quantity: item.quantity,
+                        unit_price: item.price
+                    })),
+                    payment_method: paymentMethod,
+                    discount_amount: discountAmount,
+                    tax_amount: 0, // 0% tax for now
+                    notes: selectedCustomer ? `Sale to ${selectedCustomer.name}` : 'Walk-in customer'
+                };
+
+                // Calculate totals
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                saleData.total_amount = subtotal - discountAmount;
+
+                console.log('Processing sale:', saleData);
+
+                // Send sale to API
+                const response = await fetch(`${API_BASE_URL}sales.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(saleData)
+                });
+
+                const result = await response.json();
+                console.log('Sale result:', result);
+
+                if (result.success) {
+                    // Sale successful - generate receipt
+                    await generateReceipt(result.data.sale_id, saleData);
+
+                    // Clear cart and customer selection
+                    cart = [];
+                    selectedCustomer = null;
+
+                    // Reset UI
+                    updateCart();
+                    removeCustomer();
+
+                    showNotification(`Sale completed! Receipt generated.`, 'success');
+
+                } else {
+                    throw new Error(result.message || 'Sale failed');
+                }
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showNotification('Sale failed: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Scan barcode
+        function scanBarcode(barcode) {
+            console.log('📱 Scanning barcode:', barcode);
+            
+            // Find medicine by barcode (assuming barcode is stored in a field)
+            const medicine = allMedicines.find(m => m.barcode === barcode || m.id.toString() === barcode);
+            
+            if (medicine) {
+                addToCart(medicine.id);
+                showNotification(`Scanned: ${medicine.name}`, 'success');
+            } else {
+                showNotification('Barcode not found', 'error');
+            }
+        }
+
+        function closeAnalyticsModal() {
+            document.getElementById('analyticsModal').style.display = 'none';
+        }
+
+        // Analytics Functions
+        async function showAnalytics() {
+            document.getElementById('analyticsModal').style.display = 'block';
+            await refreshAnalytics();
+        }
+
+        async function refreshAnalytics() {
+            try {
+                // Get today's date
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Fetch sales data for today
+                const response = await fetch(`${API_BASE_URL}analytics.php?date=${today}`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateAnalyticsDisplay(data.data);
+                } else {
+                    console.error('Analytics error:', data.message);
+                    showNotification('Failed to load analytics', 'error');
+                }
+            } catch (error) {
+                console.error('Analytics fetch error:', error);
+                // Show mock data for demo
+                updateAnalyticsDisplay({
+                    totalSales: 0,
+                    totalTransactions: 0,
+                    itemsSold: 0,
+                    avgTransaction: 0,
+                    topItems: []
+                });
+            }
+        }
+
+        function updateAnalyticsDisplay(data) {
+            document.getElementById('totalSales').textContent = formatKES(data.totalSales || 0);
+            document.getElementById('totalTransactions').textContent = data.totalTransactions || 0;
+            document.getElementById('itemsSold').textContent = data.itemsSold || 0;
+            document.getElementById('avgTransaction').textContent = formatKES(data.avgTransaction || 0);
+            
+            const topItemsContainer = document.getElementById('topItems');
+            if (data.topItems && data.topItems.length > 0) {
+                topItemsContainer.innerHTML = data.topItems.map(item => `
+                    <div class="top-item">
+                        <div>${item.name}</div>
+                        <div>${item.quantity} sold</div>
+                    </div>
+                `).join('');
+            } else {
+                topItemsContainer.innerHTML = '<div class="no-data">No sales data available</div>';
+            }
+        }
+
+        // Search medicines
+        function searchMedicines(query) {
+            query = query.toLowerCase().trim();
+            
+            if (!query) {
+                filteredMedicines = [...allMedicines];
+            } else {
+                filteredMedicines = allMedicines.filter(med => 
+                    med.name.toLowerCase().includes(query) ||
+                    (med.generic_name && med.generic_name.toLowerCase().includes(query)) ||
+                    (med.barcode && med.barcode.includes(query))
+                );
+            }
+            
+            displayMedicines();
+        }
+
+        // Show all medicines
+        function showAllMedicines() {
+            filteredMedicines = [...allMedicines];
+            displayMedicines();
+            document.getElementById('searchInput').value = '';
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            // This would need category data - simplified for now
+            showNotification(`Filtering by ${category}`, 'success');
+        }
+
+        // Clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            showAllMedicines();
+        }
+
+        // Customer search functionality
+        async function searchCustomers(query) {
+            if (!query || query.trim().length < 2) {
+                document.getElementById('customerResults').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}customers.php?action=list&search=${encodeURIComponent(query.trim())}&limit=10`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.customers) {
+                    displayCustomerResults(data.customers);
+                } else {
+                    document.getElementById('customerResults').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error searching customers:', error);
+                document.getElementById('customerResults').style.display = 'none';
+            }
+        }
+
+        function displayCustomerResults(customers) {
+            const resultsDiv = document.getElementById('customerResults');
+
+            if (customers.length === 0) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            resultsDiv.innerHTML = customers.map(customer => `
+                <div class="customer-result-item" onclick="selectCustomer(${customer.id}, '${escapeHtml(customer.name)}', '${customer.phone || ''}', '${customer.email || ''}')">
+                    <div class="customer-result-name">${escapeHtml(customer.name)}</div>
+                    <div class="customer-result-details">
+                        ${customer.phone ? `<i class="fas fa-phone"></i> ${customer.phone}` : ''}
+                        ${customer.email ? ` • <i class="fas fa-envelope"></i> ${customer.email}` : ''}
+                        ${!customer.phone && !customer.email ? 'No contact info' : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            resultsDiv.style.display = 'block';
+        }
+
+        function selectCustomer(id, name, phone, email) {
+            selectedCustomer = { id, name, phone, email };
+
+            // Update UI
+            document.getElementById('customerName').textContent = name;
+            document.getElementById('customerPhone').textContent = phone || 'No phone';
+            document.getElementById('customerAvatar').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+            // Hide search, show selected customer
+            document.getElementById('customerSearchInput').style.display = 'none';
+            document.querySelector('.customer-search-btn').style.display = 'none';
+            document.getElementById('selectedCustomer').style.display = 'block';
+            document.getElementById('customerResults').style.display = 'none';
+
+            showNotification(`Customer "${name}" selected`, 'success');
+        }
+
+        function removeCustomer() {
+            selectedCustomer = null;
+
+            // Reset UI
+            document.getElementById('customerSearchInput').style.display = 'block';
+            document.querySelector('.customer-search-btn').style.display = 'block';
+            document.getElementById('selectedCustomer').style.display = 'none';
+            document.getElementById('customerSearchInput').value = '';
+
+            showNotification('Customer removed from sale', 'info');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            console.log('🎧 Setting up event listeners...');
+
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchMedicines(e.target.value);
+                }, 300);
+            });
+
+            // Customer search functionality
+            console.log('🔍 Setting up customer search...');
+            const customerSearchInput = document.getElementById('customerSearchInput');
+            console.log('Customer search input element:', customerSearchInput);
+
+            if (customerSearchInput) {
+                console.log('✅ Customer search input found, setting up listeners');
+                let customerSearchTimeout;
+
+                customerSearchInput.addEventListener('input', (e) => {
+                    clearTimeout(customerSearchTimeout);
+                    customerSearchTimeout = setTimeout(() => {
+                        searchCustomers(e.target.value);
+                    }, 300);
+                });
+
+                customerSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchCustomers(customerSearchInput.value);
+                    }
+                });
+            } else {
+                console.error('❌ Customer search input NOT found!');
+            }
+
+            // Discount input listener
+            const discountInput = document.getElementById('discountAmount');
+            if (discountInput) {
+                discountInput.addEventListener('input', updateDiscount);
+            }
+
+            // Barcode input listener
+            const barcodeInput = document.getElementById('barcodeInput');
+            if (barcodeInput) {
+                barcodeInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const barcode = barcodeInput.value.trim();
+                        if (barcode) {
+                            scanBarcode(barcode);
+                            barcodeInput.value = '';
+                        }
+                    }
+                });
+            }
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // F1 - Focus search
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // F2 - Clear search
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    clearSearch();
+                }
+                
+                // F3 - Clear cart
+                if (e.key === 'F3') {
+                    e.preventDefault();
+                    clearCart();
+                }
+                
+                // F12 - Checkout
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    proceedToCheckout();
+                }
+            });
+        }
+
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                if (typeof window.PharmacyApp !== 'undefined' && window.PharmacyApp.Auth) {
+                    window.PharmacyApp.Auth.logout();
+                } else {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initPOS);
+    </script>
+</body>
+</html>
