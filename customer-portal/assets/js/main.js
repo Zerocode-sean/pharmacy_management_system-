@@ -192,7 +192,7 @@ async function loadMedicines() {
         console.log('Loading medicines from API...');
 
         // Use the same medicines API that the pharmacist dashboard uses
-        const response = await fetch('../src/backend/api/medicines_working.php?action=get', {
+    const response = await fetch('../src/backend/api/medicines.php?action=get', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

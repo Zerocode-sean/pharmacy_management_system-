@@ -428,32 +428,19 @@
     tableBody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
     
     try {
-      const apiPaths = [
-        API_BASE + 'medicines_working.php',
-        API_BASE + 'medicines.php'
-      ];
-      
+      const apiPath = API_BASE + 'medicines.php';
       let response = null;
-      for (const apiPath of apiPaths) {
-        try {
-          response = await fetch(apiPath, { credentials: 'include' });
-          if (response.ok) {
-            console.log('Medicines loaded from:', apiPath);
-            break;
-          }
-        } catch (error) {
-          console.log('Failed path:', apiPath, error.message);
-          continue;
+      try {
+        response = await fetch(apiPath, { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Medicine API endpoint failed');
         }
+      } catch (error) {
+        console.log('Failed path:', apiPath, error.message);
+        throw error;
       }
-      
-      if (!response || !response.ok) {
-        throw new Error('All medicine API endpoints failed');
-      }
-      
       const data = await response.json();
       console.log('Medicine API response:', data);
-      
       if (data.success && data.data) {
         adminDisplayInventoryData(data.data);
       } else if (Array.isArray(data)) {
@@ -509,91 +496,53 @@
       const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
       
       if (daysDiff <= 30 && daysDiff >= 0) {
-        status = 'expiring';
-        statusText = `Expires in ${daysDiff} days`;
-        statusColor = '#ffeaa7';
-        statusTextColor = '#d63031';
-      }
-    }
-    
-    row.innerHTML = `
-      <td style="padding:12px"><strong>${escapeHtml(medicine.name)}</strong></td>
-      <td style="padding:12px">${escapeHtml(medicine.category || 'N/A')}</td>
-      <td style="padding:12px">${escapeHtml(medicine.manufacturer || 'N/A')}</td>
-      <td style="padding:12px">${quantity} pcs</td>
-      <td style="padding:12px">KSh ${parseFloat(price).toFixed(2)}</td>
-      <td style="padding:12px">${medicine.expiry_date || 'N/A'}</td>
-      <td style="padding:12px"><span style="padding:4px 8px;border-radius:12px;font-size:12px;font-weight:500;background:${statusColor};color:${statusTextColor}">${statusText}</span></td>
-      <td style="padding:12px">
-        <button class="btn btn-sm" onclick="adminEditMedicine(${medicine.id})" style="background:#3498db;color:white;margin-right:5px" title="Edit">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn btn-sm" onclick="adminDeleteMedicine(${medicine.id})" style="background:#e74c3c;color:white" title="Delete">
-          <i class="fas fa-trash"></i>
-        </button>
-      </td>
-    `;
-    
-    return row;
-  }
-
-  window.adminAddNewMedicine = function() {
-    const modal = document.getElementById('adminMedicineModal');
-    const form = document.getElementById('adminMedicineForm');
-    const titleEl = document.getElementById('adminModalTitle');
-    
-    if (form) form.reset();
-    document.getElementById('adminEditId').value = '';
-    if (titleEl) titleEl.innerHTML = '<i class="fas fa-pills"></i> Add New Medicine';
-    if (modal) modal.style.display = 'flex';
-  };
-
-  window.adminViewInventory = function() {
-    renderMedicines();
-  };
-
-  window.adminCloseModal = function() {
-    const modal = document.getElementById('adminMedicineModal');
-    if (modal) modal.style.display = 'none';
-  };
-
-  window.adminEditMedicine = async function(id) {
-    try {
-      const response = await apiFetch('medicines.php');
-      const data = response.data;
-      const medicines = Array.isArray(data) ? data : (data && data.data ? data.data : []);
-      const medicine = medicines.find(m => String(m.id) === String(id));
-      
-      if (!medicine) {
-        alert('Medicine not found');
-        return;
-      }
-      
-      const form = document.getElementById('adminMedicineForm');
-      const titleEl = document.getElementById('adminModalTitle');
-      
-      document.getElementById('adminEditId').value = medicine.id;
-      form.elements['name'].value = medicine.name || '';
-      form.elements['generic_name'].value = medicine.generic_name || '';
-      form.elements['category'].value = medicine.category || '';
-      form.elements['manufacturer'].value = medicine.manufacturer || '';
-      form.elements['stock_quantity'].value = medicine.stock_quantity || medicine.quantity || 0;
-      form.elements['unit_price'].value = medicine.unit_price || medicine.price || 0;
-      form.elements['reorder_level'].value = medicine.reorder_level || 10;
-      form.elements['expiry_date'].value = medicine.expiry_date || '';
-      form.elements['description'].value = medicine.description || '';
-      
-      if (titleEl) titleEl.innerHTML = '<i class="fas fa-edit"></i> Edit Medicine';
-      document.getElementById('adminMedicineModal').style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading medicine for edit:', error);
-      alert('Error loading medicine details');
-    }
-  };
-
-  window.adminDeleteMedicine = async function(id) {
-    if (!confirm('Are you sure you want to delete this medicine?')) return;
-    
+        const apiPath = API_BASE + 'medicines.php';
+        let response = null;
+        try {
+          console.log(`🔄 Trying: ${apiPath}`);
+          const fetchUrl = isEditing ? `${apiPath}?id=${editId}` : apiPath;
+          const method = isEditing ? 'PUT' : 'POST';
+          response = await fetch(fetchUrl, {
+            method: method,
+            const apiPath = API_BASE + 'medicines.php';
+            let response = null;
+            try {
+              console.log(`🔄 Trying: ${apiPath}`);
+              const fetchUrl = isEditing ? `${apiPath}?id=${editId}` : apiPath;
+              const method = isEditing ? 'PUT' : 'POST';
+              response = await fetch(fetchUrl, {
+                method: method,
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(medicineData)
+              });
+              console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+              if (!response.ok) {
+                throw new Error('Medicine API endpoint failed');
+              }
+            } catch (error) {
+              console.warn('⚠️ Response is not JSON:', error);
+              throw new Error('API returned non-JSON response. Check backend error logs.');
+            }
+            const raw = await response.text();
+            console.log('📄 Raw API response:', raw);
+            let data = null;
+            try {
+              data = JSON.parse(raw);
+            } catch (e) {
+              console.warn('⚠️ Response is not JSON:', raw);
+              throw new Error('API returned non-JSON response. Check backend error logs.');
+            }
+            if (data.success) {
+              showSuccess('Medicine saved successfully!');
+              adminLoadInventoryData();
+              closeAdminMedicineModal();
+            } else {
+              showError(data.message || 'Failed to save medicine');
+            }
     try {
       const response = await apiFetch('medicines.php', {
         method: 'DELETE',
@@ -633,73 +582,61 @@
       const isEditing = !!editId;
       
       const medicineData = {
-        name: formData.get('name'),
-        generic_name: formData.get('generic_name'),
-        category: formData.get('category'),
-        manufacturer: formData.get('manufacturer'),
-        stock_quantity: parseInt(formData.get('stock_quantity')) || 0,
-        unit_price: parseFloat(formData.get('unit_price')) || 0,
-        reorder_level: parseInt(formData.get('reorder_level')) || 10,
-        expiry_date: formData.get('expiry_date'),
-        description: formData.get('description')
-      };
-      
-      if (isEditing) {
-        medicineData.id = editId;
-      }
-      
-      console.log('💊 Saving medicine:', medicineData);
-      
-      try {
-        const apiPaths = [
-          API_BASE + 'medicines_working.php',
-          API_BASE + 'medicines.php'
-        ];
-        
-        let response = null;
-        let lastError = null;
-        
-        for (const apiPath of apiPaths) {
-          try {
-            console.log(`🔄 Trying: ${apiPath}`);
-            const fetchUrl = isEditing ? `${apiPath}?id=${editId}` : apiPath;
-            const method = isEditing ? 'PUT' : 'POST';
-            
-            response = await fetch(fetchUrl, {
-              method: method,
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-              },
-              body: JSON.stringify(medicineData)
-            });
-            
-            console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-            
-            if (response.ok || response.status < 500) {
-              console.log('✅ Success with:', apiPath);
-              break;
-            }
-            
-            lastError = `${response.status} ${response.statusText}`;
-          } catch (pathError) {
-            console.error('❌ Failed:', apiPath, pathError.message);
-            lastError = pathError.message;
-            continue;
-          }
+        e.preventDefault();
+        const formData = new FormData(this);
+        const editId = document.getElementById('adminEditId').value;
+        const isEditing = !!editId;
+        const medicineData = {
+          name: formData.get('name'),
+          generic_name: formData.get('generic_name'),
+          category: formData.get('category'),
+          manufacturer: formData.get('manufacturer'),
+          stock_quantity: parseInt(formData.get('stock_quantity')) || 0,
+          unit_price: parseFloat(formData.get('unit_price')) || 0,
+          reorder_level: parseInt(formData.get('reorder_level')) || 10,
+          expiry_date: formData.get('expiry_date'),
+          description: formData.get('description')
+        };
+        if (isEditing) {
+          medicineData.id = editId;
         }
-        
-        if (!response) {
-          throw new Error('All API paths failed. Last error: ' + lastError);
-        }
-        
-        const responseText = await response.text();
-        console.log('📄 Raw API response:', responseText);
-        
-        let result;
+        console.log('💊 Saving medicine:', medicineData);
         try {
-          result = JSON.parse(responseText);
+          const apiPath = API_BASE + 'medicines.php';
+          const fetchUrl = isEditing ? `${apiPath}?id=${editId}` : apiPath;
+          const method = isEditing ? 'PUT' : 'POST';
+          const response = await fetch(fetchUrl, {
+            method: method,
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(medicineData)
+          });
+          console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+          if (!response.ok) {
+            throw new Error('Medicine API endpoint failed');
+          }
+          const raw = await response.text();
+          console.log('📄 Raw API response:', raw);
+          let data = null;
+          try {
+            data = JSON.parse(raw);
+          } catch (e) {
+            console.warn('⚠️ Response is not JSON:', raw);
+            throw new Error('API returned non-JSON response. Check backend error logs.');
+          }
+          if (data.success) {
+            showSuccess('Medicine saved successfully!');
+            adminLoadInventoryData();
+            closeAdminMedicineModal();
+          } else {
+            showError(data.message || 'Failed to save medicine');
+          }
+        } catch (error) {
+          showError(error.message || 'Failed to save medicine');
+        }
         } catch (parseError) {
           console.error('⚠️ Response is not JSON:', responseText.substring(0, 500));
           throw new Error(`API returned non-JSON response. Check backend error logs.`);

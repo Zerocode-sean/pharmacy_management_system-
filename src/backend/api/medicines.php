@@ -249,8 +249,10 @@ function handleCreateMedicine($db) {
                 $supplier_id = $existingSupplier['id'];
             } else {
                 // Create new supplier
-                $stmt = $db->prepare("INSERT INTO suppliers (company_name, status, created_at, updated_at) VALUES (?, 'active', NOW(), NOW())");
-                $stmt->execute([$supplierName]);
+                // Generate dummy email to avoid unique constraint violation
+                $dummyEmail = 'supplier_' . time() . '_' . rand(1000, 9999) . '@placeholder.com';
+                $stmt = $db->prepare("INSERT INTO suppliers (company_name, email, status, created_at, updated_at) VALUES (?, ?, 'active', NOW(), NOW())");
+                $stmt->execute([$supplierName, $dummyEmail]);
                 $supplier_id = $db->lastInsertId();
             }
         }
@@ -362,7 +364,12 @@ function handleCreateMedicine($db) {
     } catch (Exception $e) {
         error_log("Create medicine error: " . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to create medicine']);
+        // Return specific error for debugging
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Failed to create medicine: ' . $e->getMessage(),
+            'debug_info' => $e->getTraceAsString()
+        ]);
     }
 }
 
